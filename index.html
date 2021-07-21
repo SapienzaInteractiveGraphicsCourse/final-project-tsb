@@ -6,7 +6,7 @@
 		<style>
 			body { margin: 0; }
             .button {
-                background-color: #f44336;
+                background-color: #f44336; 
                 border: none;
                 color: white;
                 padding: 15px 32px;
@@ -14,7 +14,7 @@
                 text-decoration: none;
                 display: inline-block;
                 font-size: 18px;
-                /* margin: 4px 2px; */
+                margin: 2px;
                 cursor: pointer;
             }
 
@@ -29,14 +29,14 @@
 	<body>
         <canvas id="c"></canvas>
 		<script type="module">
-            // IMPORT Three.js
+            // IMPORT Three.js and other libraries
             import * as THREE from 'https://cdn.skypack.dev/three@0.129.0';
             import TWEEN from 'https://cdn.jsdelivr.net/npm/@tweenjs/tween.js@18.5.0/dist/tween.esm.js';
             import { OrbitControls } from './controls/OrbitControls.js';
             import { GLTFLoader } from './loaders/GLTFLoader.js';
             //import { GUI } from './dat.gui.module.js';
             import {GUI} from 'https://threejsfundamentals.org/threejs/../3rdparty/dat.gui.module.js';
-            let model, model1, model2, model3;
+            let model1, model2, model3;
             let cloud1, cloud2, cloud3, cloud4, cloud5;
             var scene, renderer, camera;
 
@@ -45,13 +45,13 @@
                 const canvas = document.querySelector('#c');
                 const texLoader = new THREE.TextureLoader(); // texture loader
 
-                // CREATE SCENE
+                /***** CREATE SCENE *****/
                 scene = new THREE.Scene(); // root of the scene graph
                 scene.background = new THREE.Color( 0x00c5ff ); // light blue
 				scene.fog = new THREE.Fog( 0x00c5ff, 20, 100 ); // light blue
 
 
-                // RENDERER
+                /***** RENDERER *****/
                 renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
                 renderer.setSize( window.innerWidth, window.innerHeight );
                 renderer.shadowMap.enabled = true; // enable shadow in the renderer
@@ -61,13 +61,13 @@
                 const gui = new GUI();
 
 
-                // CAMERA
+                /***** CAMERA *****/
                 const fov = 45;
                 const aspect = window.innerWidth / window.innerHeight; 
                 const near = 0.01; //0.25
                 const far = 1000;
                 camera = new THREE.PerspectiveCamera( fov, aspect, near, far );
-                camera.position.set(0, 3, 25); // allontanarsi dalla scena aumentando la z -- originale: (-5, 3, 10)
+                camera.position.set(0, 3, 25); // allontanarsi dalla scena aumentando la z 
                 camera.lookAt(0, 0, 0);      
                 /*control camera*/
                 const controls = new OrbitControls(camera, renderer.domElement);
@@ -75,7 +75,7 @@
                 controls.update();
                 
 
-                // GROUND
+                /***** GROUND *****/
                 var grass_normal = texLoader.load('./grass/grass_normal.jpg');
                 var grass = texLoader.load('./grass/grass_basecolor.jpg');
                 grass.wrapS = THREE.RepeatWrapping;
@@ -96,11 +96,11 @@
                 groundMesh.receiveShadow = true;
                 scene.add( groundMesh );
 
-                const grid = new THREE.GridHelper( 200, 40, 0x000000, 0x000000 );
-				grid.material.opacity = 0.2;
-				grid.material.transparent = true;
-                grid.receiveShadow = true;
-				scene.add( grid );
+                // const grid = new THREE.GridHelper( 200, 40, 0x000000, 0x000000 );
+				// grid.material.opacity = 0.2;
+				// grid.material.transparent = true;
+                // grid.receiveShadow = true;
+				// scene.add( grid );
                 
 
                 /**** GLTF MODELS *****/
@@ -108,7 +108,7 @@
                 var robot1 = new THREE.Object3D(); // robot model
                 var footL = new THREE.Object3D(); // left foot
                 var body = new THREE.Object3D(); // body
-                var torso = new THREE.Object3D(); // body
+                var torso = new THREE.Object3D(); // torso
                 var upperLegL = new THREE.Object3D(); // left upper leg
                 var lowerLegL = new THREE.Object3D(); // left lower leg
                 var upperLegR = new THREE.Object3D(); // right upper leg
@@ -401,23 +401,9 @@
                     console.error( e );
 
                 } );
-
                 
-                
-                class ColorGUIHelper {
-                    constructor(object, prop) {
-                        this.object = object;
-                        this.prop = prop;
-                    }
-                    get value() {
-                        return `#${this.object[this.prop].getHexString()}`;
-                    }
-                    set value(hexString) {
-                        this.object[this.prop].set(hexString);
-                    }
-                }
 
-                // LIGHTS
+                /***** LIGHTS *****/
                 const hemiLight = new THREE.HemisphereLight( 0xffffff, 0x444444 , 0.7); // white, gray
 				hemiLight.position.set( 0, 20, 0 );
 				scene.add( hemiLight );
@@ -438,6 +424,19 @@
                 // Directional light shadows helper
                 // const helper2 = new THREE.CameraHelper( dirLight.shadow.camera );
                 // scene.add( helper2 );
+
+                class ColorGUIHelper {
+                    constructor(object, prop) {
+                        this.object = object;
+                        this.prop = prop;
+                    }
+                    get value() {
+                        return `#${this.object[this.prop].getHexString()}`;
+                    }
+                    set value(hexString) {
+                        this.object[this.prop].set(hexString);
+                    }
+                }
 
                 function makeXYZGUI(gui, vector3, name, onChangeFn) {
                     const folder = gui.addFolder(name);
@@ -462,6 +461,7 @@
 
                 /***** ANIMATION FUNCTION *****/
                 function animation(){
+
                     // robot1 starts running
                     var tweenA = new TWEEN.Tween(lowerArmL.rotation).to({y: -Math.PI/8},200);
                     var tweenB = new TWEEN.Tween(lowerArmR.rotation).to({y: Math.PI/8},200);
@@ -489,9 +489,6 @@
                     var tweenS = new TWEEN.Tween(lowerArmR.rotation).to({x: lowerArmR.rotation.x, y: lowerArmR.rotation.y, z: lowerArmR.rotation.z },500); 
 
                     // robot2 rejoices
-                    // var tweenA2 = new TWEEN.Tween(lowerArmL2.rotation).to({y: lowerArmL2.rotation.y - Math.PI/2},1000);
-                    // var tweenB2 = new TWEEN.Tween(lowerArmR2.rotation).to({y: lowerArmR2.rotation.y + Math.PI/2},1000);
-                    //var tweenC2 = new TWEEN.Tween(shoulderL2.rotation).to({x: - Math.PI, z: shoulderL2.rotation.z + Math.PI/6},1000);
                     var tweenA2 = new TWEEN.Tween(shoulderL2.rotation).to({x: - Math.PI},500);
                     var tweenB2 = new TWEEN.Tween(shoulderR2.rotation).to({x: - Math.PI},500);
                     var tweenC2 = new TWEEN.Tween(lowerArmL2.rotation).to({x: lowerArmL2.rotation.x, y: lowerArmL2.rotation.y, z: lowerArmL2.rotation.z},500);
@@ -502,8 +499,6 @@
                     var tweenG2 = new TWEEN.Tween(upperLegR2.rotation).to({x: upperLegR2.rotation.x, y: upperLegR2.rotation.y, z: upperLegR2.rotation.z },500);
 
                     tweenH.chain(tweenI); // kick after running
-                    //tweenI.chain(tweenL); // move ball after kick
-                    //tweenI.onComplete(tweenL);
                     tweenL.delay(2300); // ball moves after kicking
                     tweenM.delay(4100); // kick of robot2 starts after the ball arrives
                     tweenN.delay(2000); // the arm of robot1 is adjusted while kicking
@@ -522,7 +517,6 @@
                     tweenF2.delay(5100);
                     tweenG2.delay(4500);
                     
-                    
                     tweenD.repeat(3)
                     tweenD.yoyo(true)
                     tweenE.repeat(3)
@@ -531,10 +525,6 @@
                     tweenG.yoyo(true)
                     tweenH.repeat(3)
                     tweenH.yoyo(true)
-                    // tweenJ.repeat(3)
-                    // tweenJ.yoyo(true)
-                    // tweenK.repeat(3)
-                    // tweenK.yoyo(true)
 
                     /* start the tweens animations */
                     tweenA.start();
