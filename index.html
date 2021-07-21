@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>IG_project_1916415</title>
+		<style>
+			body { margin: 0; }
+		</style>
+	</head>
+    <div>
+        <button id="Start">Start animation</button>
+    </div>
+	<body>
+        <canvas id="c"></canvas>
+		<script type="module">
+            // IMPORT Three.js
+            import * as THREE from 'https://cdn.skypack.dev/three@0.129.0';
+            import TWEEN from 'https://cdn.jsdelivr.net/npm/@tweenjs/tween.js@18.5.0/dist/tween.esm.js';
+            import { OrbitControls } from './controls/OrbitControls.js';
+            import { GLTFLoader } from './loaders/GLTFLoader.js';
+            //import { GUI } from './dat.gui.module.js';
+            import {GUI} from 'https://threejsfundamentals.org/threejs/../3rdparty/dat.gui.module.js';
+            let model, model1, model2, model3;
+            let cloud1, cloud2, cloud3, cloud4, cloud5;
+            var scene, renderer, camera;
+
+            function main(){
+
+                const canvas = document.querySelector('#c');
+                const texLoader = new THREE.TextureLoader(); // texture loader
+
+                // CREATE SCENE
+                scene = new THREE.Scene(); // root of the scene graph
+                scene.background = new THREE.Color( 0x00c5ff ); // light blue
+				scene.fog = new THREE.Fog( 0x00c5ff, 20, 100 ); // light blue
+
+
+                // RENDERER
+                renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+                renderer.setSize( window.innerWidth, window.innerHeight );
+                renderer.shadowMap.enabled = true; // enable shadow in the renderer
+                // add the renderer element to the DOM so it is in our page
+                document.body.appendChild( renderer.domElement );
+
+                const gui = new GUI();
+
+
+                // CAMERA
+                const fov = 45;
+                const aspect = window.innerWidth / window.innerHeight; 
+                const near = 0.01; //0.25
+                const far = 1000;
+                camera = new THREE.PerspectiveCamera( fov, aspect, near, far );
+                camera.position.set(0, 3, 25); // allontanarsi dalla scena aumentando la z -- originale: (-5, 3, 10)
+                camera.lookAt(0, 0, 0);      
+                /*control camera*/
+                const controls = new OrbitControls(camera, renderer.domElement);
+                controls.target.set(0, 5, 0);
+                controls.update();
+                
+
+                // GROUND
+                var grass_normal = texLoader.load('./grass/grass_normal.jpg');
+                var grass = texLoader.load('./grass/grass_basecolor.jpg');
+                grass.wrapS = THREE.RepeatWrapping;
+                grass.wrapT = THREE.RepeatWrapping;
+                grass.repeat.set( 100, 100 );
+                grass_normal.wrapS = THREE.RepeatWrapping;
+                grass_normal.wrapT = THREE.RepeatWrapping;
+                grass_normal.repeat.set( 100, 100 );
+
+                var ground = new THREE.PlaneGeometry( 2000, 2000 );
+                var groundMaterial = new THREE.MeshPhongMaterial( {
+                    map: grass, 
+                    normalMap:grass_normal, 
+                    depthWrite: false
+                } );
+                var groundMesh = new THREE.Mesh (ground, groundMaterial);
+                groundMesh.rotation.x = - Math.PI / 2;
+                groundMesh.receiveShadow = true;
+                scene.add( groundMesh );
+
+                const grid = new THREE.GridHelper( 200, 40, 0x000000, 0x000000 );
+				grid.material.opacity = 0.2;
+				grid.material.transparent = true;
+                grid.receiveShadow = true;
+				scene.add( grid );
+                
+
+                /**** GLTF MODELS *****/
+                /* BIG ROBOT */
+                var robot1 = new THREE.Object3D(); // robot model
+                var footL = new THREE.Object3D(); // left foot
+                var body = new THREE.Object3D(); // body
+                var torso = new THREE.Object3D(); // body
+                var upperLegL = new THREE.Object3D(); // left upper leg
+                var lowerLegL = new THREE.Object3D(); // left lower leg
+                var upperLegR = new THREE.Object3D(); // right upper leg
+                var lowerLegR = new THREE.Object3D(); // right lower leg
+                var head = new THREE.Object3D(); // head
+                var shoulderL = new THREE.Object3D(); // left shoulder
+                var shoulderR = new THREE.Object3D(); // left shoulder
+                var upperArmL = new THREE.Object3D(); // left upper arm
+                var upperArmR = new THREE.Object3D(); // left lower arm
+                var lowerArmL = new THREE.Object3D(); // left lower arm
+                var lowerArmR = new THREE.Object3D(); // right lower arm
+                var footR = new THREE.Object3D(); // right foot
+
+                const loader = new GLTFLoader();
+
+                loader.load( './models/RobotExpressive.glb', function ( gltf ) {
+
+                    model1 = gltf.scene;
+                    // model1.position.x = -10; // left near the ball
+                    model1.position.x = -17;
+                    model1.position.z = -5;
+                    model1.rotation.y = Math.PI / 2;
+                    gltf.scene.traverse(function(model) {
+                        if (model.isMesh) {
+                            model.castShadow = true;
+                            model.receiveShadow = true;
+                        }
+                    })
+                    robot1 = model1
+                    scene.add( model1 );
+
+                    /* get the robot bones */
+                    var skeleton = new THREE.SkeletonHelper(model1);
+                    console.log(skeleton);
+                    var elements = skeleton.bones;
+                    footL = elements[1]; // left foot
+                    body = elements[2]; // body
+                    upperLegL = elements[3]; // left upper leg
+                    lowerLegL = elements[4]; // left lower leg
+                    upperLegR = elements[5]; // right upper leg
+                    lowerLegR = elements[6]; // right lower leg
+                    torso = elements[9]; // right lower leg
+                    head = elements[11]; // head
+                    shoulderL = elements[12]; // left shoulder
+                    upperArmL = elements[13]; // left upper arm
+                    shoulderR = elements[26]; // right shoulder
+                    upperArmR = elements[27]; // left upper arm
+                    lowerArmL = elements[14]; // left lower arm
+                    lowerArmR = elements[28]; // right lower arm
+                    footR = elements[41]; // right foot
+                                  
+
+                }, undefined, function ( e ) {
+
+                    console.error( e );
+
+                } );
+                // if (lowerLegL && footL) lowerLegL.add(footL);
+                // if (lowerLegR && footR) lowerLegR.add(footR);
+
+
+                /* SMALL ROBOT */
+                var robot2 = new THREE.Object3D();
+                var footL2 = new THREE.Object3D(); // left foot
+                var body2 = new THREE.Object3D(); // body
+                var upperLegL2 = new THREE.Object3D(); // left upper leg
+                var lowerLegL2 = new THREE.Object3D(); // left lower leg
+                var upperLegR2 = new THREE.Object3D(); // right upper leg
+                var lowerLegR2 = new THREE.Object3D(); // right lower leg
+                var head2 = new THREE.Object3D(); // head
+                var shoulderL2 = new THREE.Object3D(); // left shoulder
+                var shoulderR2 = new THREE.Object3D(); // left shoulder
+                var upperArmL2 = new THREE.Object3D(); // left upper arm
+                var upperArmR2 = new THREE.Object3D(); // left lower arm
+                var lowerArmL2 = new THREE.Object3D(); // left lower arm
+                var lowerArmR2 = new THREE.Object3D(); // right lower arm
+                var footR2 = new THREE.Object3D(); // right foot
+
+                loader.load( './models/RobotExpressive.glb', function ( gltf ) {
+
+                    model2 = gltf.scene;
+                    model2.position.x = 10; // right
+                    model2.position.z = -5;
+                    model2.scale.set(0.5,0.5,0.5);
+                    model2.rotation.y = -Math.PI / 2;
+                    robot2 = model2
+                    scene.add( model2 );
+
+                    gltf.scene.traverse(function (child) { // traverse through the list of children objects
+                        //console.log(child);
+                        if(child.isMesh){
+                            child.castShadow = true;
+                            child.receiveShadow = true;
+                        }
+                        // If the child is a mesh, change the color to RED
+                        if ((child.isMesh) && (child.material.name == 'Main')){
+                            //child.material = new THREE.MeshPhongMaterial({color: 0xffff00, specular: 0x009900, shininess:150});
+                            //child.material = new THREE.MeshPhongMaterial({color: 0xffff00}); // yellow
+                            child.material = new THREE.MeshPhongMaterial({color: 0xbc153b, specular: 0x009900}); // red
+                            child.material.name = 'Red';
+                        }
+
+                        // if((child.isMesh) && (child.name == 'LowerLegR')){
+                        //     var child1 = child;
+                        //     if((child.isMesh) && (child.name == 'FootR')){
+                        //         var child2 = child;
+                        //         child1.add(child2);
+                        //     }
+                        // }
+                    });
+
+                    /* get the robot bones */
+                    var skeleton2 = new THREE.SkeletonHelper(model2);
+                    //console.log(skeleton2);
+                    var elements2 = skeleton2.bones;
+                    footL2 = elements2[1]; // left foot
+                    body2 = elements2[2]; // body
+                    upperLegL2 = elements2[3]; // left upper leg
+                    lowerLegL2 = elements2[4]; // left lower leg
+                    upperLegR2 = elements2[5]; // right upper leg
+                    lowerLegR2 = elements2[6]; // right lower leg
+                    head2 = elements2[11]; // head
+                    shoulderL2 = elements2[12]; // left shoulder
+                    upperArmL2 = elements2[13]; // left upper arm
+                    shoulderR2 = elements2[26]; // right shoulder
+                    upperArmR2 = elements2[27]; // left lower arm
+                    lowerArmL2 = elements2[14]; // left lower arm
+                    lowerArmR2 = elements2[28]; // right lower arm
+                    footR2 = elements2[41]; // right foot
+                    
+
+                }, undefined, function ( e ) {
+
+                    console.error( e );
+
+                } );
+
+                //lowerLegR2.add(footR2);
+                
+
+                /* BALL */
+                var ball = new THREE.Object3D();
+                loader.load( './models/football/scene.gltf', function ( gltf ) {
+
+                    model3 = gltf.scene;
+                    model3.scale.set(0.05,0.05,0.05);
+                    model3.position.set(-8,0.5,-5);
+                    model3.castShadow = true;
+                    model3.receiveShadow = true;
+                    ball = model3;
+                    scene.add( model3 );
+
+                    gltf.scene.traverse(function(model) {
+                        if (model.isMesh) {
+                            model.castShadow = true;
+                            model.receiveShadow = true;
+                        }
+                    })
+
+                }, undefined, function ( e ) {
+
+                    console.error( e );
+
+                } );
+
+                /* CLOUDS */
+                loader.load( './models/cloud/scene.gltf', function ( gltf ) {
+
+                    cloud1 = gltf.scene;
+                    cloud1.scale.set(0.05,0.05,0.05);
+                    cloud1.position.set(0,15,-10);
+                    scene.add( cloud1 );
+
+                    cloud1.traverse(function(model) {
+                        if (model.isMesh) {
+                            model.castShadow = true;
+                        }
+                    })
+
+                    var target = {x:30};
+                    var tween = new TWEEN.Tween(cloud1.position).to(target,12000);
+                    tween.repeat(Infinity)
+                    tween.yoyo(true)
+                    tween.start();
+
+                }, undefined, function ( e ) {
+
+                    console.error( e );
+
+                } );
+
+                loader.load( './models/cloud/scene.gltf', function ( gltf ) {
+
+                    cloud2 = gltf.scene;
+                    cloud2.scale.set(0.1,0.1,0.1);
+                    cloud2.position.set(-18,13,0);
+                    cloud2.rotation.y = - Math.PI;
+                    scene.add( cloud2 );
+
+                    cloud2.traverse(function(model) {
+                        if (model.isMesh) {
+                            model.castShadow = true;
+                        }
+                    })
+
+                    var target = {x:30};
+                    var tween = new TWEEN.Tween(cloud2.position).to(target,19000);
+                    tween.repeat(Infinity)
+                    tween.yoyo(true)
+                    tween.start();
+
+                }, undefined, function ( e ) {
+
+                    console.error( e );
+
+                } );
+
+                loader.load( './models/cloud/scene.gltf', function ( gltf ) {
+
+                    cloud3 = gltf.scene;
+                    cloud3.scale.set(0.08,0.08,0.08);
+                    cloud3.position.set(15,10,8);
+                    scene.add( cloud3 );
+
+                    cloud3.traverse(function(model) {
+                        if (model.isMesh) {
+                            model.castShadow = true;
+                        }
+                    })
+
+                    var target = {x:-20};
+                    var tween = new TWEEN.Tween(cloud3.position).to(target,13000);
+                    tween.repeat(Infinity)
+                    tween.yoyo(true)
+                    tween.start();
+
+                }, undefined, function ( e ) {
+
+                    console.error( e );
+
+                } );
+
+                loader.load( './models/cloud/scene.gltf', function ( gltf ) {
+
+                    cloud4 = gltf.scene;
+                    cloud4.scale.set(0.07,0.07,0.07);
+                    cloud4.position.set(10,11,-8);
+                    cloud4.rotation.y = - Math.PI;
+                    scene.add( cloud4 );
+
+                    cloud4.traverse(function(model) {
+                        if (model.isMesh) {
+                            model.castShadow = true;
+                        }
+                    })
+
+                    var target = {x:-30};
+                    var tween = new TWEEN.Tween(cloud4.position).to(target,15000);
+                    tween.repeat(Infinity)
+                    tween.yoyo(true)
+                    tween.start();
+
+                }, undefined, function ( e ) {
+
+                    console.error( e );
+
+                } );
+
+                loader.load( './models/cloud/scene.gltf', function ( gltf ) {
+
+                    cloud5 = gltf.scene;
+                    cloud5.scale.set(0.11,0.11,0.11);
+                    cloud5.position.set(-15,12,-15);
+                    scene.add( cloud5 );
+
+                    cloud5.traverse(function(model) {
+                        if (model.isMesh) {
+                            model.castShadow = true;
+                        }
+                    })
+
+                    var target = {x:25};
+                    var tween = new TWEEN.Tween(cloud5.position).to(target,14000);
+                    tween.repeat(Infinity)
+                    tween.yoyo(true)
+                    tween.start();
+
+                }, undefined, function ( e ) {
+
+                    console.error( e );
+
+                } );
+
+                
+                
+                class ColorGUIHelper {
+                    constructor(object, prop) {
+                        this.object = object;
+                        this.prop = prop;
+                    }
+                    get value() {
+                        return `#${this.object[this.prop].getHexString()}`;
+                    }
+                    set value(hexString) {
+                        this.object[this.prop].set(hexString);
+                    }
+                }
+
+                // LIGHTS
+                const hemiLight = new THREE.HemisphereLight( 0xffffff, 0x444444 , 0.7); // white, gray
+				hemiLight.position.set( 0, 20, 0 );
+				scene.add( hemiLight );
+
+				const dirLight = new THREE.DirectionalLight( 0xffffff ); // white
+				dirLight.position.set( 0, 20, 10 );
+                dirLight.castShadow = true; // enable light to cast a shadow
+                dirLight.shadow.camera.left = -30;
+                dirLight.shadow.camera.right = 30;
+                dirLight.shadow.camera.top = 30;
+                dirLight.shadow.camera.bottom = -30;
+				scene.add( dirLight );
+                scene.add(dirLight.target)
+
+                // Directional light helper
+                const helper = new THREE.DirectionalLightHelper(dirLight);
+                // scene.add(helper);
+                // Directional light shadows helper
+                // const helper2 = new THREE.CameraHelper( dirLight.shadow.camera );
+                // scene.add( helper2 );
+
+                function makeXYZGUI(gui, vector3, name, onChangeFn) {
+                    const folder = gui.addFolder(name);
+                    folder.add(vector3, 'x', -10, 10).onChange(onChangeFn);
+                    folder.add(vector3, 'y', 0, 20).onChange(onChangeFn);
+                    folder.add(vector3, 'z', -10, 10).onChange(onChangeFn);
+                    folder.open();
+                }
+
+                function updateLight() {
+                    dirLight.target.updateMatrixWorld();
+                    helper.update();
+                }
+                updateLight();
+
+                gui.addColor(new ColorGUIHelper(dirLight, 'color'), 'value').name('color');
+                gui.add(dirLight, 'intensity', 0, 2, 0.01);
+                // gui.add(dirLight.target.position, 'x', -10, 10);
+                // gui.add(dirLight.target.position, 'z', -10, 10);
+                // gui.add(dirLight.target.position, 'y', 0, 10);
+
+                makeXYZGUI(gui, dirLight.position, 'position', updateLight);
+                makeXYZGUI(gui, dirLight.target.position, 'target', updateLight);
+
+
+                /***** ANIMATION FUNCTION *****/
+                function animation(){
+                    // robot1 starts running
+                    var tweenA = new TWEEN.Tween(lowerArmL.rotation).to({y: -Math.PI/8},200);
+                    var tweenB = new TWEEN.Tween(lowerArmR.rotation).to({y: Math.PI/8},200);
+                    var tweenC = new TWEEN.Tween(head.rotation).to({x: Math.PI/6},200);
+                    var tweenD = new TWEEN.Tween(shoulderL.rotation).to({x: -Math.PI/6},500);
+                    var tweenE = new TWEEN.Tween(shoulderR.rotation).to({x: Math.PI/6},500);
+                    var tweenF = new TWEEN.Tween(robot1.position).to({x: -10},1700);
+                    var tweenG = new TWEEN.Tween(upperLegL.rotation).to({x: upperLegL.rotation.x + Math.PI/4},500);
+                    var tweenH = new TWEEN.Tween(upperLegR.rotation).to({x: upperLegR.rotation.x - Math.PI/4},500);
+                    var tweenI = new TWEEN.Tween(upperLegR.rotation).to({x: upperLegR.rotation.x - Math.PI/4},500); // kick of robot1
+                    //var tweenJ = new TWEEN.Tween(footR.rotation).to({x: footR.rotation.x - Math.PI/4},500);
+                    //var tweenK = new TWEEN.Tween(footR.position).to({y: footR.y +0.5},500);
+
+                    // ball starts moving
+                    var tweenL = new TWEEN.Tween(ball.position).to({x: 8.7},2000); 
+                    tweenL.easing(TWEEN.Easing.Quadratic.Out);
+                    var tweenM = new TWEEN.Tween(upperLegR2.rotation).to({x: upperLegR2.rotation.x - Math.PI/4},200); // kick of robot2
+
+                    // robot1 returns to initial position
+                    var tweenN = new TWEEN.Tween(shoulderR.rotation).to({y: shoulderR.rotation.y -Math.PI/4 },500); // extend right lower arm of robot1
+                    var tweenO = new TWEEN.Tween(lowerArmR.rotation).to({y: lowerArmR.rotation.y -Math.PI/3},500); // extend right lower arm of robot1
+                    var tweenP = new TWEEN.Tween(upperLegR.rotation).to({x: upperLegR.rotation.x, y: upperLegR.rotation.y, z: upperLegR.rotation.z },500); 
+                    var tweenQ = new TWEEN.Tween(head.rotation).to({x: head.rotation.x},500);
+                    var tweenR = new TWEEN.Tween(lowerArmL.rotation).to({x: lowerArmL.rotation.x, y: lowerArmL.rotation.y, z: lowerArmL.rotation.z },500); 
+                    var tweenS = new TWEEN.Tween(lowerArmR.rotation).to({x: lowerArmR.rotation.x, y: lowerArmR.rotation.y, z: lowerArmR.rotation.z },500); 
+
+                    // robot2 rejoices
+                    // var tweenA2 = new TWEEN.Tween(lowerArmL2.rotation).to({y: lowerArmL2.rotation.y - Math.PI/2},1000);
+                    // var tweenB2 = new TWEEN.Tween(lowerArmR2.rotation).to({y: lowerArmR2.rotation.y + Math.PI/2},1000);
+                    //var tweenC2 = new TWEEN.Tween(shoulderL2.rotation).to({x: - Math.PI, z: shoulderL2.rotation.z + Math.PI/6},1000);
+                    var tweenA2 = new TWEEN.Tween(shoulderL2.rotation).to({x: - Math.PI},500);
+                    var tweenB2 = new TWEEN.Tween(shoulderR2.rotation).to({x: - Math.PI},500);
+                    var tweenC2 = new TWEEN.Tween(lowerArmL2.rotation).to({x: lowerArmL2.rotation.x, y: lowerArmL2.rotation.y, z: lowerArmL2.rotation.z},500);
+                    var tweenD2 = new TWEEN.Tween(lowerArmR2.rotation).to({x: lowerArmR2.rotation.x, y: lowerArmR2.rotation.y, z: lowerArmR2.rotation.z},500);
+                    var tweenE2 = new TWEEN.Tween(robot2.position).to({y: 0.5},500); 
+                    tweenE2.easing(TWEEN.Easing.Quadratic.In);
+                    var tweenF2 = new TWEEN.Tween(robot2.position).to({y: '0'}, 300); 
+                    var tweenG2 = new TWEEN.Tween(upperLegR2.rotation).to({x: upperLegR2.rotation.x, y: upperLegR2.rotation.y, z: upperLegR2.rotation.z },500);
+
+                    tweenH.chain(tweenI); // kick after running
+                    //tweenI.chain(tweenL); // move ball after kick
+                    //tweenI.onComplete(tweenL);
+                    tweenL.delay(2300); // ball moves after kicking
+                    tweenM.delay(4100); // kick of robot2 starts after the ball arrives
+                    tweenN.delay(2000); // the arm of robot1 is adjusted while kicking
+                    tweenO.delay(2000); // the arm of robot1 is adjusted while kicking
+                    tweenP.delay(2800); // robot1 back to normal position
+                    tweenQ.delay(2800); // robot1 back to normal position
+                    tweenR.delay(2800); // robot1 back to normal position
+                    tweenS.delay(2800); // robot1 back to normal position
+                    
+                    // robot2 starts rejoicing after stopping the ball
+                    tweenA2.delay(4500);
+                    tweenB2.delay(4500);
+                    tweenC2.delay(4500);
+                    tweenD2.delay(4500);
+                    tweenE2.delay(4500);
+                    tweenF2.delay(5100);
+                    tweenG2.delay(4500);
+                    
+                    
+                    tweenD.repeat(3)
+                    tweenD.yoyo(true)
+                    tweenE.repeat(3)
+                    tweenE.yoyo(true)
+                    tweenG.repeat(3)
+                    tweenG.yoyo(true)
+                    tweenH.repeat(3)
+                    tweenH.yoyo(true)
+                    // tweenJ.repeat(3)
+                    // tweenJ.yoyo(true)
+                    // tweenK.repeat(3)
+                    // tweenK.yoyo(true)
+
+                    /* start the tweens animations */
+                    tweenA.start();
+                    tweenB.start();
+                    tweenC.start();
+                    tweenD.start();
+                    tweenE.start();
+                    tweenF.start();
+                    tweenG.start();
+                    tweenH.start();
+                    tweenI.start();
+                    //tweenJ.start();
+                    //tweenK.start();
+                    tweenL.start();
+                    tweenM.start();
+                    tweenN.start();
+                    tweenO.start();
+                    tweenP.start();
+                    tweenQ.start();
+                    tweenR.start();
+                    tweenS.start();
+
+                    tweenA2.start();
+                    tweenB2.start();
+                    tweenC2.start();
+                    tweenD2.start();
+                    tweenE2.start();
+                    tweenF2.start();
+                    tweenG2.start();
+                    
+                }
+                
+
+                /***** RENDER FUNCTION *****/
+                function animate() {
+                    requestAnimationFrame( animate );
+                    
+                    // button to start the animation
+                    document.getElementById("Start").onclick = function(){
+                        //setInterval(function() {
+                            animation();
+                        //}, 120);
+                    };
+                    controls.update();
+                    camera.updateProjectionMatrix();
+
+                    renderer.render( scene, camera );
+                    TWEEN.update();
+                }
+                animate();
+            }
+            main();
+            
+
+
+		</script>
+	</body>
+</html>
