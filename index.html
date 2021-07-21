@@ -5,10 +5,26 @@
 		<title>IG_project_1916415</title>
 		<style>
 			body { margin: 0; }
+            .button {
+                background-color: #f44336;
+                border: none;
+                color: white;
+                padding: 15px 32px;
+                text-align: center;
+                text-decoration: none;
+                display: inline-block;
+                font-size: 18px;
+                /* margin: 4px 2px; */
+                cursor: pointer;
+            }
+
+            .wrapper {
+                text-align: center;
+            }
 		</style>
 	</head>
-    <div>
-        <button id="Start">Start animation</button>
+    <div class="wrapper">
+        <button id="Start" class="button">Start animation</button>
     </div>
 	<body>
         <canvas id="c"></canvas>
@@ -439,9 +455,6 @@
 
                 gui.addColor(new ColorGUIHelper(dirLight, 'color'), 'value').name('color');
                 gui.add(dirLight, 'intensity', 0, 2, 0.01);
-                // gui.add(dirLight.target.position, 'x', -10, 10);
-                // gui.add(dirLight.target.position, 'z', -10, 10);
-                // gui.add(dirLight.target.position, 'y', 0, 10);
 
                 makeXYZGUI(gui, dirLight.position, 'position', updateLight);
                 makeXYZGUI(gui, dirLight.target.position, 'target', updateLight);
