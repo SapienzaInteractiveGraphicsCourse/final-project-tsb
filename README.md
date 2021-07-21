@@ -1,2 +1,2 @@
 # final-project-tsb
-final-project-tsb created by GitHub Classroom
+Interactive Graphics Project by Tania Sari Bonaventura (student id number: 1916415)
