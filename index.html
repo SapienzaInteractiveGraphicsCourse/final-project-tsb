@@ -5,8 +5,21 @@
 		<title>IG_project_1916415</title>
 		<style>
 			body { margin: 0; }
-            .button {
+            .button1 {
                 background-color: #f44336; 
+                border: none;
+                color: white;
+                padding: 15px 32px;
+                text-align: center;
+                text-decoration: none;
+                display: inline-block;
+                font-size: 18px;
+                margin: 2px;
+                cursor: pointer;
+            }
+
+            .button2 {
+                background-color: #3936f4; 
                 border: none;
                 color: white;
                 padding: 15px 32px;
@@ -24,7 +37,8 @@
 		</style>
 	</head>
     <div class="wrapper">
-        <button id="Start" class="button">Start animation</button>
+        <button id="Start" class="button1">Start football pass</button>
+        <button id="Reset" class="button2">Ball back to position</button>
     </div>
 	<body>
         <canvas id="c"></canvas>
@@ -67,7 +81,7 @@
                 const near = 0.01; //0.25
                 const far = 1000;
                 camera = new THREE.PerspectiveCamera( fov, aspect, near, far );
-                camera.position.set(0, 3, 25); // allontanarsi dalla scena aumentando la z 
+                camera.position.set(0, 3, 25); 
                 camera.lookAt(0, 0, 0);      
                 /*control camera*/
                 const controls = new OrbitControls(camera, renderer.domElement);
@@ -96,6 +110,7 @@
                 groundMesh.receiveShadow = true;
                 scene.add( groundMesh );
 
+                // grid helper
                 // const grid = new THREE.GridHelper( 200, 40, 0x000000, 0x000000 );
 				// grid.material.opacity = 0.2;
 				// grid.material.transparent = true;
@@ -127,7 +142,6 @@
                 loader.load( './models/RobotExpressive.glb', function ( gltf ) {
 
                     model1 = gltf.scene;
-                    // model1.position.x = -10; // left near the ball
                     model1.position.x = -17;
                     model1.position.z = -5;
                     model1.rotation.y = Math.PI / 2;
@@ -166,8 +180,6 @@
                     console.error( e );
 
                 } );
-                // if (lowerLegL && footL) lowerLegL.add(footL);
-                // if (lowerLegR && footR) lowerLegR.add(footR);
 
 
                 /* SMALL ROBOT */
@@ -205,19 +217,9 @@
                         }
                         // If the child is a mesh, change the color to RED
                         if ((child.isMesh) && (child.material.name == 'Main')){
-                            //child.material = new THREE.MeshPhongMaterial({color: 0xffff00, specular: 0x009900, shininess:150});
-                            //child.material = new THREE.MeshPhongMaterial({color: 0xffff00}); // yellow
                             child.material = new THREE.MeshPhongMaterial({color: 0xbc153b, specular: 0x009900}); // red
                             child.material.name = 'Red';
                         }
-
-                        // if((child.isMesh) && (child.name == 'LowerLegR')){
-                        //     var child1 = child;
-                        //     if((child.isMesh) && (child.name == 'FootR')){
-                        //         var child2 = child;
-                        //         child1.add(child2);
-                        //     }
-                        // }
                     });
 
                     /* get the robot bones */
@@ -238,14 +240,6 @@
                     lowerArmL2 = elements2[14]; // left lower arm
                     lowerArmR2 = elements2[28]; // right lower arm
                     footR2 = elements2[41]; // right foot
-
-                    // var robot2Mesh = new THREE.SkinnedMesh(robot2);
-                    // gltf.scene.traverse(function (child) {
-                    //     if((child.isMesh) && (child.name == 'FootR')){
-                    //         skeleton2.add(child);
-                    //     }
-                    
-                    // })
                     
 
                 }, undefined, function ( e ) {
@@ -253,8 +247,6 @@
                     console.error( e );
 
                 } );
-
-                //lowerLegR2.add(footR2);
                 
 
                 /* BALL */
@@ -468,7 +460,7 @@
 
 
                 /***** ANIMATION FUNCTION *****/
-                function animation(){
+                function kickBall(){
 
                     // robot1 starts running
                     var tweenA = new TWEEN.Tween(lowerArmL.rotation).to({y: -Math.PI/8},200).start();
@@ -501,7 +493,7 @@
                     var tweenM3 = new TWEEN.Tween(footR2.position).to({z: 0.011},200).delay(4100).start(); // kick of robot2
                     var tweenM4 = new TWEEN.Tween(footR2.rotation).to({x: footR2.rotation.x - Math.PI/6},200).delay(4100).start(); // kick of robot2
 
-                    // robot1 returns to initial position
+                    // robot1 stretches its arm and returns to initial position
                     var tweenN = new TWEEN.Tween(shoulderR.rotation).to({y: shoulderR.rotation.y -Math.PI/4 },500).delay(2000).start(); // extend right lower arm of robot1
                     var tweenO = new TWEEN.Tween(lowerArmR.rotation).to({y: lowerArmR.rotation.y -Math.PI/3},500).delay(2000).start(); // extend right lower arm of robot1
                     var tweenP = new TWEEN.Tween(upperLegR.rotation).to({x: upperLegR.rotation.x, y: upperLegR.rotation.y, z: upperLegR.rotation.z },500).delay(2800).start();
@@ -510,18 +502,25 @@
                     var tweenS = new TWEEN.Tween(lowerArmR.rotation).to({x: lowerArmR.rotation.x, y: lowerArmR.rotation.y, z: lowerArmR.rotation.z },500).delay(2800).start(); 
                     var tweenT = new TWEEN.Tween(footR.rotation).to({x: footR.rotation.x },500).delay(2800).start();
                     var tweenU = new TWEEN.Tween(footR.position).to({y: footR.position.y, z: footR.position.z },500).delay(2800).start(); 
+                    var tweenV = new TWEEN.Tween(shoulderR.rotation).to({y: shoulderR.rotation.y },500).delay(2800).start(); // extend right lower arm of robot1
+                    var tweenW = new TWEEN.Tween(lowerArmR.rotation).to({y: lowerArmR.rotation.y },500).delay(2800).start(); // extend right lower arm of robot1
 
                     // robot2 rejoices
                     var tweenA2 = new TWEEN.Tween(shoulderL2.rotation).to({x: - Math.PI},500).delay(4500).start();
                     var tweenB2 = new TWEEN.Tween(shoulderR2.rotation).to({x: - Math.PI},500).delay(4500).start();
-                    var tweenC2 = new TWEEN.Tween(lowerArmL2.rotation).to({x: lowerArmL2.rotation.x, y: lowerArmL2.rotation.y, z: lowerArmL2.rotation.z},500).delay(4500).start();
-                    var tweenD2 = new TWEEN.Tween(lowerArmR2.rotation).to({x: lowerArmR2.rotation.x, y: lowerArmR2.rotation.y, z: lowerArmR2.rotation.z},500).delay(4500).start();
+                    // var tweenC2 = new TWEEN.Tween(lowerArmL2.rotation).to({x: lowerArmL2.rotation.x, y: lowerArmL2.rotation.y, z: lowerArmL2.rotation.z},500).delay(4500).start();
+                    // var tweenD2 = new TWEEN.Tween(lowerArmR2.rotation).to({x: lowerArmR2.rotation.x, y: lowerArmR2.rotation.y, z: lowerArmR2.rotation.z},500).delay(4500).start();
                     var tweenE2 = new TWEEN.Tween(robot2.position).to({y: 0.5},500).delay(4500).start(); 
                     tweenE2.easing(TWEEN.Easing.Quadratic.In);
                     var tweenF2 = new TWEEN.Tween(robot2.position).to({y: '0'}, 300).delay(5100).start(); 
+
+                    // robot2 back to initial position
                     var tweenG2 = new TWEEN.Tween(upperLegR2.rotation).to({x: upperLegR2.rotation.x, y: upperLegR2.rotation.y, z: upperLegR2.rotation.z },500).delay(4500).start(); // leg back to initial position
                     var tweenG3 = new TWEEN.Tween(footR2.rotation).to({x: footR2.rotation.x},500).delay(4500).start(); // foot back to initial position
                     var tweenG4 = new TWEEN.Tween(footR2.position).to({y: footR2.position.y, z: footR2.position.z },500).delay(4500).start(); // foot back to initial position
+                    var tweenG5 = new TWEEN.Tween(shoulderL2.rotation).to({x: shoulderL2.rotation.x},500).delay(5800).start();
+                    var tweenG6 = new TWEEN.Tween(shoulderR2.rotation).to({x: shoulderR2.rotation.x},500).delay(5800).start();
+
 
                     tweenH.chain(tweenI, tweenI2, tweenI3, tweenI4); // kick after running
                     
@@ -550,6 +549,11 @@
                     tweenJ3L.yoyo(true)
                     
                 }
+
+                function ballBack(){
+                    var tweenA = new TWEEN.Tween(ball.position).to({x: -8},500).start(); 
+                    var tweenB = new TWEEN.Tween(robot1.position).to({x: -17},500).start();
+                }
                 
 
                 /***** RENDER FUNCTION *****/
@@ -558,10 +562,13 @@
                     
                     // button to start the animation
                     document.getElementById("Start").onclick = function(){
-                        //setInterval(function() {
-                            animation();
-                        //}, 120);
+                        kickBall();
                     };
+
+                    document.getElementById("Reset").onclick = function(){
+                        ballBack();
+                    };
+
                     controls.update();
                     camera.updateProjectionMatrix();
 
