@@ -125,11 +125,11 @@
                 scene.add( groundMesh );
 
                 // grid helper
-                const grid = new THREE.GridHelper( 200, 40, 0x000000, 0x000000 );
-				grid.material.opacity = 0.2;
-				grid.material.transparent = true;
-                grid.receiveShadow = true;
-				scene.add( grid );
+                // const grid = new THREE.GridHelper( 200, 40, 0x000000, 0x000000 );
+				// grid.material.opacity = 0.2;
+				// grid.material.transparent = true;
+                // grid.receiveShadow = true;
+				// scene.add( grid );
                 
 
                 /**** GLTF MODELS *****/
@@ -588,7 +588,7 @@
                     var tweenK1 = new TWEEN.Tween(upperLegR.rotation).to({z: -Math.PI/6},500).delay(1000).start();
                     var tweenL1 = new TWEEN.Tween(lowerLegL.rotation).to({z: -Math.PI/4},500).delay(1000).start();
                     var tweenM1 = new TWEEN.Tween(lowerLegR.rotation).to({z: +Math.PI/4},500).delay(1000).start();
-                    
+
                     // split
                     var tweenN1 = new TWEEN.Tween(upperLegL.rotation).to({z: -Math.PI/2},500).delay(2500).start();
                     var tweenO1 = new TWEEN.Tween(upperLegR.rotation).to({z: +Math.PI/2},500).delay(2500).start();
@@ -597,8 +597,8 @@
                     var tweenR1 = new TWEEN.Tween(lowerLegR.rotation).to({z: 0},500).delay(2500).start();
                     var tweenS1 = new TWEEN.Tween(footL.rotation).to({y: -Math.PI/2, z: -Math.PI/2 },200).delay(2500).start();
                     var tweenT1 = new TWEEN.Tween(footR.rotation).to({y: +Math.PI/2, z: +Math.PI/2 },200).delay(2500).start();
-                    var tweenU1 = new TWEEN.Tween(footL.position).to({x: 0.02, y: 0.01, z: -0.005 },400).delay(2500).start();
-                    var tweenV1 = new TWEEN.Tween(footR.position).to({x: -0.02, y: 0.01, z: -0.005 },400).delay(2500).start();
+                    var tweenU1 = new TWEEN.Tween(footL.position).to({x: 0.02, y: 0.01, z: -0.005 },500).delay(2500).start();
+                    var tweenV1 = new TWEEN.Tween(footR.position).to({x: -0.02, y: 0.01, z: -0.005 },500).delay(2500).start();
                     var tweenW1 = new TWEEN.Tween(shoulderL.rotation).to({z: shoulderL.rotation.x-Math.PI/3},500).delay(2500).start();
                     var tweenX1 = new TWEEN.Tween(shoulderR.rotation).to({x: shoulderL.rotation.x-Math.PI/6},500).delay(2500).start();
                     var tweenY1 = new TWEEN.Tween(lowerArmR.rotation).to({x: lowerArmR.rotation.x, y: lowerArmR.rotation.y, z: lowerArmR.rotation.z },500).delay(2500).start();
@@ -645,8 +645,8 @@
                     var tweenR2 = new TWEEN.Tween(lowerLegR2.rotation).to({z: 0},500).delay(2500).start();
                     var tweenS2 = new TWEEN.Tween(footL2.rotation).to({y: -Math.PI/2, z: -Math.PI/2 },200).delay(2500).start();
                     var tweenT2 = new TWEEN.Tween(footR2.rotation).to({y: +Math.PI/2, z: +Math.PI/2 },200).delay(2500).start();
-                    var tweenU2 = new TWEEN.Tween(footL2.position).to({x: 0.02, y: 0.01, z: -0.005 },400).delay(2500).start();
-                    var tweenV2 = new TWEEN.Tween(footR2.position).to({x: -0.02, y: 0.01, z: -0.005 },400).delay(2500).start();
+                    var tweenU2 = new TWEEN.Tween(footL2.position).to({x: 0.02, y: 0.01, z: -0.005 },500).delay(2500).start();
+                    var tweenV2 = new TWEEN.Tween(footR2.position).to({x: -0.02, y: 0.01, z: -0.005 },500).delay(2500).start();
                     var tweenW2 = new TWEEN.Tween(shoulderL2.rotation).to({z: shoulderL2.rotation.x-Math.PI/6},500).delay(2500).start();
                     var tweenX2 = new TWEEN.Tween(shoulderR2.rotation).to({x: shoulderL2.rotation.x-Math.PI/3},500).delay(2500).start();
                     var tweenY2 = new TWEEN.Tween(lowerArmR2.rotation).to({x: lowerArmR2.rotation.x, y: lowerArmR2.rotation.y, z: lowerArmR2.rotation.z },500).delay(2500).start();
