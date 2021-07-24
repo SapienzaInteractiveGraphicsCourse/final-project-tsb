@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>IG_project_1916415</title>
+		<style>
+			body { margin: 0; }
+            .button1 {
+                background-color: #f44336; 
+                border: none;
+                color: white;
+                padding: 15px 32px;
+                text-align: center;
+                text-decoration: none;
+                display: inline-block;
+                font-size: 18px;
+                margin: 2px;
+                cursor: pointer;
+            }
+
+            .button2 {
+                background-color: #3936f4; 
+                border: none;
+                color: white;
+                padding: 15px 32px;
+                text-align: center;
+                text-decoration: none;
+                display: inline-block;
+                font-size: 18px;
+                margin: 2px;
+                cursor: pointer;
+            }
+
+            .button3 {
+                background-color: #2abe74; 
+                border: none;
+                color: white;
+                padding: 15px 32px;
+                text-align: center;
+                text-decoration: none;
+                display: inline-block;
+                font-size: 18px;
+                margin: 2px;
+                cursor: pointer;
+            }
+
+            .wrapper {
+                text-align: center;
+            }
+		</style>
+	</head>
+    <div class="wrapper">
+        <button id="Start" class="button1">Start football pass</button>
+        <button id="Reset" class="button2">Ball back to position</button>
+        <button id="Dance" class="button3">Start dancing</button>
+    </div>
+	<body>
+        <canvas id="c"></canvas>
+		<script type="module">
+            // IMPORT Three.js and other libraries
+            import * as THREE from 'https://cdn.skypack.dev/three@0.129.0';
+            import TWEEN from 'https://cdn.jsdelivr.net/npm/@tweenjs/tween.js@18.5.0/dist/tween.esm.js';
+            import { OrbitControls } from './controls/OrbitControls.js';
+            import { GLTFLoader } from './loaders/GLTFLoader.js';
+            import {GUI} from 'https://threejsfundamentals.org/threejs/../3rdparty/dat.gui.module.js';
+            let model1, model2, model3;
+            let cloud1, cloud2, cloud3, cloud4, cloud5;
+            var scene, renderer, camera;
+
+            function main(){
+
+                const canvas = document.querySelector('#c');
+                const texLoader = new THREE.TextureLoader(); // texture loader
+
+                /***** CREATE SCENE *****/
+                scene = new THREE.Scene(); // root of the scene graph
+                scene.background = new THREE.Color( 0x00c5ff ); // light blue
+				scene.fog = new THREE.Fog( 0x00c5ff, 20, 100 ); // light blue
+
+
+                /***** RENDERER *****/
+                renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+                renderer.setSize( window.innerWidth, window.innerHeight );
+                renderer.shadowMap.enabled = true; // enable shadow in the renderer
+                // add the renderer element to the DOM so it is in our page
+                document.body.appendChild( renderer.domElement );
+
+                const gui = new GUI();
+
+
+                /***** CAMERA *****/
+                const fov = 45;
+                const aspect = window.innerWidth / window.innerHeight; 
+                const near = 0.01; 
+                const far = 1000;
+                camera = new THREE.PerspectiveCamera( fov, aspect, near, far );
+                camera.position.set(0, 3, 25); 
+                camera.lookAt(0, 0, 0);      
+                /*control camera*/
+                const controls = new OrbitControls(camera, renderer.domElement);
+                controls.target.set(0, 5, 0);
+                controls.update();
+                
+
+                /***** GROUND *****/
+                var grass_normal = texLoader.load('./grass/grass_normal.jpg');
+                var grass = texLoader.load('./grass/grass_basecolor.jpg');
+                grass.wrapS = THREE.RepeatWrapping;
+                grass.wrapT = THREE.RepeatWrapping;
+                grass.repeat.set( 100, 100 );
+                grass_normal.wrapS = THREE.RepeatWrapping;
+                grass_normal.wrapT = THREE.RepeatWrapping;
+                grass_normal.repeat.set( 100, 100 );
+
+                var ground = new THREE.PlaneGeometry( 2000, 2000 );
+                var groundMaterial = new THREE.MeshPhongMaterial( {
+                    map: grass, 
+                    normalMap:grass_normal, 
+                    depthWrite: false
+                } );
+                var groundMesh = new THREE.Mesh (ground, groundMaterial);
+                groundMesh.rotation.x = - Math.PI / 2;
+                groundMesh.receiveShadow = true;
+                scene.add( groundMesh );
+
+                // grid helper
+                // const grid = new THREE.GridHelper( 200, 40, 0x000000, 0x000000 );
+				// grid.material.opacity = 0.2;
+				// grid.material.transparent = true;
+                // grid.receiveShadow = true;
+				// scene.add( grid );
+                
+
+                /**** GLTF MODELS *****/
+                /* BIG ROBOT */
+                var robot1 = new THREE.Object3D(); // robot model
+                var footL = new THREE.Object3D(); // left foot
+                var body = new THREE.Object3D(); // body
+                var torso = new THREE.Object3D(); // torso
+                var upperLegL = new THREE.Object3D(); // left upper leg
+                var lowerLegL = new THREE.Object3D(); // left lower leg
+                var upperLegR = new THREE.Object3D(); // right upper leg
+                var lowerLegR = new THREE.Object3D(); // right lower leg
+                var head = new THREE.Object3D(); // head
+                var shoulderL = new THREE.Object3D(); // left shoulder
+                var shoulderR = new THREE.Object3D(); // left shoulder
+                var upperArmL = new THREE.Object3D(); // left upper arm
+                var upperArmR = new THREE.Object3D(); // left lower arm
+                var lowerArmL = new THREE.Object3D(); // left lower arm
+                var lowerArmR = new THREE.Object3D(); // right lower arm
+                var footR = new THREE.Object3D(); // right foot
+
+                const loader = new GLTFLoader();
+
+                loader.load( './models/RobotExpressive.glb', function ( gltf ) {
+
+                    model1 = gltf.scene;
+                    model1.position.x = -17;
+                    model1.position.z = -5;
+                    model1.rotation.y = Math.PI / 2;
+                    gltf.scene.traverse(function(model) { // traverse through the list of children objects
+                        if (model.isMesh) {
+                            model.castShadow = true;
+                            model.receiveShadow = true;
+                        }
+                    })
+                    robot1 = model1
+                    scene.add( model1 );
+
+                    /* get the robot bones */
+                    var skeleton = new THREE.SkeletonHelper(model1);
+                    console.log(skeleton);
+                    var elements = skeleton.bones;
+                    footL = elements[1]; // left foot
+                    body = elements[2]; // body
+                    upperLegL = elements[3]; // left upper leg
+                    lowerLegL = elements[4]; // left lower leg
+                    upperLegR = elements[5]; // right upper leg
+                    lowerLegR = elements[6]; // right lower leg
+                    torso = elements[9]; // right lower leg
+                    head = elements[11]; // head
+                    shoulderL = elements[12]; // left shoulder
+                    upperArmL = elements[13]; // left upper arm
+                    shoulderR = elements[26]; // right shoulder
+                    upperArmR = elements[27]; // left upper arm
+                    lowerArmL = elements[14]; // left lower arm
+                    lowerArmR = elements[28]; // right lower arm
+                    footR = elements[41]; // right foot
+                                  
+
+                }, undefined, function ( e ) {
+
+                    console.error( e );
+
+                } );
+
+
+                /* SMALL ROBOT */
+                var robot2 = new THREE.Object3D();
+                var footL2 = new THREE.Object3D(); // left foot
+                var body2 = new THREE.Object3D(); // body
+                var upperLegL2 = new THREE.Object3D(); // left upper leg
+                var lowerLegL2 = new THREE.Object3D(); // left lower leg
+                var upperLegR2 = new THREE.Object3D(); // right upper leg
+                var lowerLegR2 = new THREE.Object3D(); // right lower leg
+                var head2 = new THREE.Object3D(); // head
+                var shoulderL2 = new THREE.Object3D(); // left shoulder
+                var shoulderR2 = new THREE.Object3D(); // left shoulder
+                var upperArmL2 = new THREE.Object3D(); // left upper arm
+                var upperArmR2 = new THREE.Object3D(); // left lower arm
+                var lowerArmL2 = new THREE.Object3D(); // left lower arm
+                var lowerArmR2 = new THREE.Object3D(); // right lower arm
+                var footR2 = new THREE.Object3D(); // right foot
+
+                loader.load( './models/RobotExpressive.glb', function ( gltf ) {
+
+                    model2 = gltf.scene;
+                    model2.position.x = 10; 
+                    model2.position.z = -5;
+                    model2.scale.set(0.5,0.5,0.5);
+                    model2.rotation.y = -Math.PI / 2;
+                    robot2 = model2
+                    scene.add( model2 );
+
+                    gltf.scene.traverse(function (child) { // traverse through the list of children objects
+                        //console.log(child);
+                        if(child.isMesh){
+                            child.castShadow = true;
+                            child.receiveShadow = true;
+                        }
+                        // If the child is a mesh, change the color to RED
+                        if ((child.isMesh) && (child.material.name == 'Main')){
+                            child.material = new THREE.MeshPhongMaterial({color: 0xbc153b, specular: 0x009900}); // red
+                            child.material.name = 'Red';
+                        }
+                    });
+
+                    /* get the robot bones */
+                    var skeleton2 = new THREE.SkeletonHelper(model2);
+                    var elements2 = skeleton2.bones;
+                    footL2 = elements2[1]; // left foot
+                    body2 = elements2[2]; // body
+                    upperLegL2 = elements2[3]; // left upper leg
+                    lowerLegL2 = elements2[4]; // left lower leg
+                    upperLegR2 = elements2[5]; // right upper leg
+                    lowerLegR2 = elements2[6]; // right lower leg
+                    head2 = elements2[11]; // head
+                    shoulderL2 = elements2[12]; // left shoulder
+                    upperArmL2 = elements2[13]; // left upper arm
+                    shoulderR2 = elements2[26]; // right shoulder
+                    upperArmR2 = elements2[27]; // left lower arm
+                    lowerArmL2 = elements2[14]; // left lower arm
+                    lowerArmR2 = elements2[28]; // right lower arm
+                    footR2 = elements2[41]; // right foot
+                    
+
+                }, undefined, function ( e ) {
+
+                    console.error( e );
+
+                } );
+                
+
+                /* BALL */
+                var ball = new THREE.Object3D();
+                loader.load( './models/football/scene.gltf', function ( gltf ) {
+
+                    model3 = gltf.scene;
+                    model3.scale.set(0.05,0.05,0.05);
+                    model3.position.set(-8,0.5,-5);
+                    model3.castShadow = true;
+                    model3.receiveShadow = true;
+                    ball = model3;
+                    scene.add( model3 );
+
+                    gltf.scene.traverse(function(model) {
+                        if (model.isMesh) {
+                            model.castShadow = true;
+                            model.receiveShadow = true;
+                        }
+                    })
+
+                }, undefined, function ( e ) {
+
+                    console.error( e );
+
+                } );
+
+                /* CLOUDS */
+                loader.load( './models/cloud/scene.gltf', function ( gltf ) {
+
+                    cloud1 = gltf.scene;
+                    cloud1.scale.set(0.05,0.05,0.05);
+                    cloud1.position.set(0,15,-10);
+                    scene.add( cloud1 );
+
+                    cloud1.traverse(function(model) {
+                        if (model.isMesh) {
+                            model.castShadow = true;
+                        }
+                    })
+
+                    var target = {x:30};
+                    var tween = new TWEEN.Tween(cloud1.position).to(target,12000);
+                    tween.repeat(Infinity)
+                    tween.yoyo(true)
+                    tween.start();
+
+                }, undefined, function ( e ) {
+
+                    console.error( e );
+
+                } );
+
+                loader.load( './models/cloud/scene.gltf', function ( gltf ) {
+
+                    cloud2 = gltf.scene;
+                    cloud2.scale.set(0.1,0.1,0.1);
+                    cloud2.position.set(-18,13,0);
+                    cloud2.rotation.y = - Math.PI;
+                    scene.add( cloud2 );
+
+                    cloud2.traverse(function(model) {
+                        if (model.isMesh) {
+                            model.castShadow = true;
+                        }
+                    })
+
+                    var target = {x:30};
+                    var tween = new TWEEN.Tween(cloud2.position).to(target,19000);
+                    tween.repeat(Infinity)
+                    tween.yoyo(true)
+                    tween.start();
+
+                }, undefined, function ( e ) {
+
+                    console.error( e );
+
+                } );
+
+                loader.load( './models/cloud/scene.gltf', function ( gltf ) {
+
+                    cloud3 = gltf.scene;
+                    cloud3.scale.set(0.08,0.08,0.08);
+                    cloud3.position.set(15,10,8);
+                    scene.add( cloud3 );
+
+                    cloud3.traverse(function(model) {
+                        if (model.isMesh) {
+                            model.castShadow = true;
+                        }
+                    })
+
+                    var target = {x:-20};
+                    var tween = new TWEEN.Tween(cloud3.position).to(target,13000);
+                    tween.repeat(Infinity)
+                    tween.yoyo(true)
+                    tween.start();
+
+                }, undefined, function ( e ) {
+
+                    console.error( e );
+
+                } );
+
+                loader.load( './models/cloud/scene.gltf', function ( gltf ) {
+
+                    cloud4 = gltf.scene;
+                    cloud4.scale.set(0.07,0.07,0.07);
+                    cloud4.position.set(10,11,-8);
+                    cloud4.rotation.y = - Math.PI;
+                    scene.add( cloud4 );
+
+                    cloud4.traverse(function(model) {
+                        if (model.isMesh) {
+                            model.castShadow = true;
+                        }
+                    })
+
+                    var target = {x:-30};
+                    var tween = new TWEEN.Tween(cloud4.position).to(target,15000);
+                    tween.repeat(Infinity)
+                    tween.yoyo(true)
+                    tween.start();
+
+                }, undefined, function ( e ) {
+
+                    console.error( e );
+
+                } );
+
+                loader.load( './models/cloud/scene.gltf', function ( gltf ) {
+
+                    cloud5 = gltf.scene;
+                    cloud5.scale.set(0.11,0.11,0.11);
+                    cloud5.position.set(-15,12,-15);
+                    scene.add( cloud5 );
+
+                    cloud5.traverse(function(model) {
+                        if (model.isMesh) {
+                            model.castShadow = true;
+                        }
+                    })
+
+                    var target = {x:25};
+                    var tween = new TWEEN.Tween(cloud5.position).to(target,14000);
+                    tween.repeat(Infinity)
+                    tween.yoyo(true)
+                    tween.start();
+
+                }, undefined, function ( e ) {
+
+                    console.error( e );
+
+                } );
+                
+
+                /***** LIGHTS *****/
+                const hemiLight = new THREE.HemisphereLight( 0xffffff, 0x444444 , 0.7); // white, gray
+				hemiLight.position.set( 0, 20, 0 );
+				scene.add( hemiLight );
+
+				const dirLight = new THREE.DirectionalLight( 0xffffff ); // white
+				dirLight.position.set( 0, 20, 10 );
+                dirLight.castShadow = true; // enable light to cast a shadow
+                dirLight.shadow.camera.left = -30;
+                dirLight.shadow.camera.right = 30;
+                dirLight.shadow.camera.top = 30;
+                dirLight.shadow.camera.bottom = -30;
+				scene.add( dirLight );
+                scene.add(dirLight.target)
+
+                // Directional light helper
+                const helper = new THREE.DirectionalLightHelper(dirLight);
+                // scene.add(helper);
+                // Directional light shadows helper
+                // const helper2 = new THREE.CameraHelper( dirLight.shadow.camera );
+                // scene.add( helper2 );
+
+                class ColorGUIHelper {
+                    constructor(object, prop) {
+                        this.object = object;
+                        this.prop = prop;
+                    }
+                    get value() {
+                        return `#${this.object[this.prop].getHexString()}`;
+                    }
+                    set value(hexString) {
+                        this.object[this.prop].set(hexString);
+                    }
+                }
+
+                function makeXYZGUI(gui, vector3, name, onChangeFn) {
+                    const folder = gui.addFolder(name);
+                    folder.add(vector3, 'x', -10, 10).onChange(onChangeFn);
+                    folder.add(vector3, 'y', 0, 20).onChange(onChangeFn);
+                    folder.add(vector3, 'z', -10, 10).onChange(onChangeFn);
+                    folder.open();
+                }
+
+                function updateLight() {
+                    dirLight.target.updateMatrixWorld();
+                    helper.update();
+                }
+                updateLight();
+
+                gui.addColor(new ColorGUIHelper(dirLight, 'color'), 'value').name('color');
+                gui.add(dirLight, 'intensity', 0, 2, 0.01);
+
+                makeXYZGUI(gui, dirLight.position, 'position', updateLight);
+                makeXYZGUI(gui, dirLight.target.position, 'target', updateLight);
+
+
+                /***** ANIMATION FUNCTION *****/
+                function kickBall(){
+
+                    // robot1 starts running
+                    var tweenA = new TWEEN.Tween(lowerArmL.rotation).to({y: -Math.PI/8},200).start();
+                    var tweenB = new TWEEN.Tween(lowerArmR.rotation).to({y: Math.PI/8},200).start();
+                    var tweenC = new TWEEN.Tween(head.rotation).to({x: Math.PI/6},200).start();
+                    var tweenD = new TWEEN.Tween(shoulderL.rotation).to({x: -Math.PI/6},500).start();
+                    tweenD.easing(TWEEN.Easing.Quadratic.Out);
+                    var tweenE = new TWEEN.Tween(shoulderR.rotation).to({x: Math.PI/6},500).start();
+                    tweenE.easing(TWEEN.Easing.Quadratic.Out);
+                    var tweenF = new TWEEN.Tween(robot1.position).to({x: -10},1700).start();
+                    var tweenG = new TWEEN.Tween(upperLegL.rotation).to({x: upperLegL.rotation.x + Math.PI/4},500).start();
+                    var tweenH = new TWEEN.Tween(upperLegR.rotation).to({x: upperLegR.rotation.x - Math.PI/4},500).start();
+                    var tweenI = new TWEEN.Tween(upperLegR.rotation).to({x: upperLegR.rotation.x - Math.PI/4},500).start(); // kick of robot1 with right leg
+                    var tweenI2 = new TWEEN.Tween(footR.position).to({y: 0.004},500).start(); // raise right feet
+                    var tweenI3 = new TWEEN.Tween(footR.position).to({z: 0.009},500).start(); // raise right feet
+                    var tweenI4 = new TWEEN.Tween(footR.rotation).to({x: footR.rotation.x - Math.PI/6},500).start(); // raise right feet
+                    
+                    // feet movements
+                    var tweenJ1R = new TWEEN.Tween(footR.position).to({y: 0.003},500).start();
+                    var tweenJ2R = new TWEEN.Tween(footR.position).to({z: 0.01},500).start();
+                    var tweenJ3R = new TWEEN.Tween(footR.rotation).to({x: footR.rotation.x - Math.PI/6},500).start();
+                    var tweenJ1L = new TWEEN.Tween(footL.position).to({y: 0.004},500).start();
+                    var tweenJ2L = new TWEEN.Tween(footL.position).to({z: -0.009},500).start();
+                    var tweenJ3L = new TWEEN.Tween(footL.rotation).to({x: footL.rotation.x + Math.PI/6},500).start();
+                    
+                    // ball starts moving
+                    var tweenK = new TWEEN.Tween(ball.rotation).to({z: '-6*Math.PI'},2000).delay(2300).start(); 
+                    var tweenL = new TWEEN.Tween(ball.position).to({x: 8.7},2000).delay(2300).start(); 
+                    tweenL.easing(TWEEN.Easing.Quadratic.Out);
+                    var tweenM = new TWEEN.Tween(upperLegR2.rotation).to({x: upperLegR2.rotation.x - Math.PI/4},200).delay(4100).start(); // kick of robot2
+                    var tweenM2 = new TWEEN.Tween(footR2.position).to({y: 0.003},200).delay(4100).start(); // kick of robot2
+                    var tweenM3 = new TWEEN.Tween(footR2.position).to({z: 0.011},200).delay(4100).start(); // kick of robot2
+                    var tweenM4 = new TWEEN.Tween(footR2.rotation).to({x: footR2.rotation.x - Math.PI/6},200).delay(4100).start(); // kick of robot2
+
+                    // robot1 stretches its arm and returns to initial position
+                    var tweenN = new TWEEN.Tween(shoulderR.rotation).to({y: shoulderR.rotation.y -Math.PI/4 },500).delay(2000).start(); // extend right lower arm of robot1
+                    var tweenO = new TWEEN.Tween(lowerArmR.rotation).to({y: lowerArmR.rotation.y -Math.PI/3},500).delay(2000).start(); // extend right lower arm of robot1
+                    var tweenP = new TWEEN.Tween(upperLegR.rotation).to({x: upperLegR.rotation.x, y: upperLegR.rotation.y, z: upperLegR.rotation.z },500).delay(2800).start();
+                    var tweenQ = new TWEEN.Tween(head.rotation).to({x: head.rotation.x},500).delay(2800).start();
+                    var tweenR = new TWEEN.Tween(lowerArmL.rotation).to({x: lowerArmL.rotation.x, y: lowerArmL.rotation.y, z: lowerArmL.rotation.z },500).delay(2800).start(); 
+                    var tweenS = new TWEEN.Tween(lowerArmR.rotation).to({x: lowerArmR.rotation.x, y: lowerArmR.rotation.y, z: lowerArmR.rotation.z },500).delay(2800).start(); 
+                    var tweenT = new TWEEN.Tween(footR.rotation).to({x: footR.rotation.x },500).delay(2800).start();
+                    var tweenU = new TWEEN.Tween(footR.position).to({y: footR.position.y, z: footR.position.z },500).delay(2800).start(); 
+                    var tweenV = new TWEEN.Tween(shoulderR.rotation).to({y: shoulderR.rotation.y },500).delay(2800).start(); 
+                    var tweenW = new TWEEN.Tween(lowerArmR.rotation).to({y: lowerArmR.rotation.y },500).delay(2800).start(); 
+
+                    // robot2 rejoices
+                    var tweenA2 = new TWEEN.Tween(shoulderL2.rotation).to({x: - Math.PI},500).delay(4500).start();
+                    var tweenB2 = new TWEEN.Tween(shoulderR2.rotation).to({x: - Math.PI},500).delay(4500).start();
+                    var tweenC2 = new TWEEN.Tween(robot2.position).to({y: 0.5},500).delay(4500).start(); 
+                    tweenC2.easing(TWEEN.Easing.Quadratic.In);
+                    var tweenD2 = new TWEEN.Tween(robot2.position).to({y: '0'}, 300).delay(5100).start(); 
+
+                    // robot2 back to initial position
+                    var tweenE2 = new TWEEN.Tween(upperLegR2.rotation).to({x: upperLegR2.rotation.x, y: upperLegR2.rotation.y, z: upperLegR2.rotation.z },500).delay(4500).start(); // leg back to initial position
+                    var tweenF2 = new TWEEN.Tween(footR2.rotation).to({x: footR2.rotation.x},500).delay(4500).start(); // foot back to initial position
+                    var tweenG2 = new TWEEN.Tween(footR2.position).to({y: footR2.position.y, z: footR2.position.z },500).delay(4500).start(); // foot back to initial position
+                    var tweenH2 = new TWEEN.Tween(shoulderL2.rotation).to({x: shoulderL2.rotation.x},500).delay(5800).start();
+                    var tweenJ2 = new TWEEN.Tween(shoulderR2.rotation).to({x: shoulderR2.rotation.x},500).delay(5800).start();
+
+                    tweenH.chain(tweenI, tweenI2, tweenI3, tweenI4); // kick after running
+                    
+                    // arm and legs movements of robot1 while running
+                    tweenD.repeat(3)
+                    tweenD.yoyo(true)
+                    tweenE.repeat(3)
+                    tweenE.yoyo(true)
+                    tweenG.repeat(3)
+                    tweenG.yoyo(true)
+                    tweenH.repeat(3)
+                    tweenH.yoyo(true)
+
+                    // feet movements
+                    tweenJ1R.repeat(3)
+                    tweenJ1R.yoyo(true)
+                    tweenJ2R.repeat(3)
+                    tweenJ2R.yoyo(true)
+                    tweenJ3R.repeat(3)
+                    tweenJ3R.yoyo(true)
+                    tweenJ1L.repeat(3)
+                    tweenJ1L.yoyo(true)
+                    tweenJ2L.repeat(3)
+                    tweenJ2L.yoyo(true)
+                    tweenJ3L.repeat(3)
+                    tweenJ3L.yoyo(true)
+                    
+                }
+
+                function ballBack(){
+                    var tweenA = new TWEEN.Tween(ball.position).to({x: -8},500).start(); 
+                    var tweenB = new TWEEN.Tween(robot1.position).to({x: -17},500).start();
+                }
+
+                function dance(){
+                    // robot1
+                    var tweenA1 = new TWEEN.Tween(robot1.rotation).to({y: robot1.rotation.y -Math.PI/2},500).start();
+                    var tweenA12 = new TWEEN.Tween(robot1.position).to({x: -5, z: 0},500).start();
+                    var tweenB1 = new TWEEN.Tween(shoulderL.rotation).to({z: shoulderL.rotation.x -Math.PI/2},500).delay(500).start();
+                    var tweenC1 = new TWEEN.Tween(shoulderR.rotation).to({z: shoulderR.rotation.x +Math.PI/2},500).delay(500).start();
+                    var tweenD1 = new TWEEN.Tween(lowerArmL.rotation).to({z: lowerArmL.rotation.z -Math.PI/2},500).delay(1000).start();
+                    var tweenE1 = new TWEEN.Tween(lowerArmR.rotation).to({z: lowerArmR.rotation.z +Math.PI/2},500).delay(1000).start();
+                    var tweenF1 = new TWEEN.Tween(head.rotation).to({z: head.rotation.z +Math.PI/6},500).delay(1500).start();
+                    var tweenG1 = new TWEEN.Tween(lowerArmL.rotation).to({x: lowerArmL.rotation.z +3*Math.PI},500).delay(1500).start();
+                    var tweenH1 = new TWEEN.Tween(head.rotation).to({z: head.rotation.x-Math.PI/6},500).delay(2000).start();
+                    var tweenI1 = new TWEEN.Tween(lowerArmR.rotation).to({x: lowerArmR.rotation.z+2*Math.PI},500).delay(2000).start();
+                    var tweenJ1 = new TWEEN.Tween(upperLegL.rotation).to({z: Math.PI/6},500).delay(1000).start();
+                    var tweenK1 = new TWEEN.Tween(upperLegR.rotation).to({z: -Math.PI/6},500).delay(1000).start();
+                    var tweenL1 = new TWEEN.Tween(lowerLegL.rotation).to({z: -Math.PI/4},500).delay(1000).start();
+                    var tweenM1 = new TWEEN.Tween(lowerLegR.rotation).to({z: +Math.PI/4},500).delay(1000).start();
+
+                    // split
+                    var tweenN1 = new TWEEN.Tween(upperLegL.rotation).to({z: -Math.PI/2},500).delay(2500).start();
+                    var tweenO1 = new TWEEN.Tween(upperLegR.rotation).to({z: +Math.PI/2},500).delay(2500).start();
+                    var tweenP1 = new TWEEN.Tween(robot1.position).to({y: -1},500).delay(2500).start();
+                    var tweenQ1 = new TWEEN.Tween(lowerLegL.rotation).to({z: 0},500).delay(2500).start();
+                    var tweenR1 = new TWEEN.Tween(lowerLegR.rotation).to({z: 0},500).delay(2500).start();
+                    var tweenS1 = new TWEEN.Tween(footL.rotation).to({y: -Math.PI/2, z: -Math.PI/2 },200).delay(2500).start();
+                    var tweenT1 = new TWEEN.Tween(footR.rotation).to({y: +Math.PI/2, z: +Math.PI/2 },200).delay(2500).start();
+                    var tweenU1 = new TWEEN.Tween(footL.position).to({x: 0.02, y: 0.01, z: -0.005 },500).delay(2500).start();
+                    var tweenV1 = new TWEEN.Tween(footR.position).to({x: -0.02, y: 0.01, z: -0.005 },500).delay(2500).start();
+                    var tweenW1 = new TWEEN.Tween(shoulderL.rotation).to({z: shoulderL.rotation.x-Math.PI/3},500).delay(2500).start();
+                    var tweenX1 = new TWEEN.Tween(shoulderR.rotation).to({x: shoulderL.rotation.x-Math.PI/6},500).delay(2500).start();
+                    var tweenY1 = new TWEEN.Tween(lowerArmR.rotation).to({x: lowerArmR.rotation.x, y: lowerArmR.rotation.y, z: lowerArmR.rotation.z },500).delay(2500).start();
+                    var tweenZ1 = new TWEEN.Tween(lowerArmL.rotation).to({x: lowerArmL.rotation.x, y: lowerArmL.rotation.y, z: lowerArmL.rotation.z },500).delay(2500).start();
+
+                    // robot1 back to initial position
+                    var tween11 = new TWEEN.Tween(head.rotation).to({z: head.rotation.z },500).delay(3800).start();
+                    var tween12 = new TWEEN.Tween(shoulderL.rotation).to({x: shoulderL.rotation.x, y: shoulderL.rotation.y, z: shoulderL.rotation.z },500).delay(3800).start();
+                    var tween13 = new TWEEN.Tween(shoulderR.rotation).to({x: shoulderR.rotation.x, y: shoulderR.rotation.y, z: shoulderR.rotation.z },500).delay(3800).start();
+                    var tween14 = new TWEEN.Tween(lowerArmR.rotation).to({x: lowerArmR.rotation.x, y: lowerArmR.rotation.y, z: lowerArmR.rotation.z },500).delay(3800).start();
+                    var tween15 = new TWEEN.Tween(lowerArmL.rotation).to({x: lowerArmL.rotation.x, y: lowerArmL.rotation.y, z: lowerArmL.rotation.z },500).delay(3800).start();
+                    var tween16 = new TWEEN.Tween(robot1.rotation).to({y: robot1.rotation.y},500).delay(3800).start();
+                    var tween17 = new TWEEN.Tween(robot1.position).to({y: robot1.position.y},500).delay(3800).start();
+                    var tween18 = new TWEEN.Tween(lowerLegL.rotation).to({z: lowerLegL.rotation.z},500).delay(3800).start();
+                    var tween19 = new TWEEN.Tween(lowerLegR.rotation).to({z: lowerLegL.rotation.z},500).delay(3800).start();
+                    var tween110 = new TWEEN.Tween(footL.rotation).to({y: footL.rotation.y, z: footL.rotation.z },200).delay(3800).start();
+                    var tween111 = new TWEEN.Tween(footR.rotation).to({y: footR.rotation.y, z: footR.rotation.z },200).delay(3800).start();
+                    var tween112 = new TWEEN.Tween(footL.position).to({x: footL.position.x, y: footL.position.y, z: footL.position.z },400).delay(3800).start();
+                    var tween113 = new TWEEN.Tween(footR.position).to({x: footR.position.x, y: footR.position.y, z: footR.position.z },400).delay(3800).start();
+                    var tween114 = new TWEEN.Tween(upperLegL.rotation).to({z: upperLegL.rotation.z},500).delay(3800).start();
+                    var tween115 = new TWEEN.Tween(upperLegR.rotation).to({z: upperLegR.rotation.z},500).delay(3800).start();
+                    var tween116 = new TWEEN.Tween(robot1.position).to({x: robot1.position.x, z: robot1.position.z},500).delay(3800).start();
+
+
+                    // robot2
+                    var tweenA2 = new TWEEN.Tween(robot2.rotation).to({y: robot2.rotation.y +Math.PI/2},500).start();
+                    var tweenA22 = new TWEEN.Tween(robot2.position).to({x: 5, z: 0},500).start();
+                    var tweenB2 = new TWEEN.Tween(shoulderL2.rotation).to({z: shoulderL2.rotation.x -Math.PI/2},500).delay(500).start();
+                    var tweenC2 = new TWEEN.Tween(shoulderR2.rotation).to({z: shoulderR2.rotation.x +Math.PI/2},500).delay(500).start();
+                    var tweenD2 = new TWEEN.Tween(lowerArmL2.rotation).to({z: lowerArmL2.rotation.z -Math.PI/2},500).delay(1000).start();
+                    var tweenE2 = new TWEEN.Tween(lowerArmR2.rotation).to({z: lowerArmR2.rotation.z +Math.PI/2},500).delay(1000).start();
+                    var tweenF2 = new TWEEN.Tween(head2.rotation).to({z: head2.rotation.z -Math.PI/6},500).delay(1500).start();
+                    var tweenG2 = new TWEEN.Tween(lowerArmR2.rotation).to({x: lowerArmR2.rotation.z +2*Math.PI},500).delay(1500).start();
+                    var tweenH2 = new TWEEN.Tween(head2.rotation).to({z: head2.rotation.x+Math.PI/6},500).delay(2000).start();
+                    var tweenI2 = new TWEEN.Tween(lowerArmL2.rotation).to({x: lowerArmL2.rotation.z+3*Math.PI},500).delay(2000).start();
+                    var tweenJ2 = new TWEEN.Tween(upperLegL2.rotation).to({z: Math.PI/6},500).delay(1000).start();
+                    var tweenK2 = new TWEEN.Tween(upperLegR2.rotation).to({z: -Math.PI/6},500).delay(1000).start();
+                    var tweenL2 = new TWEEN.Tween(lowerLegL2.rotation).to({z: -Math.PI/4},500).delay(1000).start();
+                    var tweenM2 = new TWEEN.Tween(lowerLegR2.rotation).to({z: +Math.PI/4},500).delay(1000).start();
+
+                    // split
+                    var tweenN2 = new TWEEN.Tween(upperLegL2.rotation).to({z: -Math.PI/2},500).delay(2500).start();
+                    var tweenO2 = new TWEEN.Tween(upperLegR2.rotation).to({z: +Math.PI/2},500).delay(2500).start();
+                    var tweenP2 = new TWEEN.Tween(robot2.position).to({y: -0.5},500).delay(2500).start();
+                    var tweenQ2 = new TWEEN.Tween(lowerLegL2.rotation).to({z: 0},500).delay(2500).start();
+                    var tweenR2 = new TWEEN.Tween(lowerLegR2.rotation).to({z: 0},500).delay(2500).start();
+                    var tweenS2 = new TWEEN.Tween(footL2.rotation).to({y: -Math.PI/2, z: -Math.PI/2 },200).delay(2500).start();
+                    var tweenT2 = new TWEEN.Tween(footR2.rotation).to({y: +Math.PI/2, z: +Math.PI/2 },200).delay(2500).start();
+                    var tweenU2 = new TWEEN.Tween(footL2.position).to({x: 0.02, y: 0.01, z: -0.005 },500).delay(2500).start();
+                    var tweenV2 = new TWEEN.Tween(footR2.position).to({x: -0.02, y: 0.01, z: -0.005 },500).delay(2500).start();
+                    var tweenW2 = new TWEEN.Tween(shoulderL2.rotation).to({z: shoulderL2.rotation.x-Math.PI/6},500).delay(2500).start();
+                    var tweenX2 = new TWEEN.Tween(shoulderR2.rotation).to({x: shoulderL2.rotation.x-Math.PI/3},500).delay(2500).start();
+                    var tweenY2 = new TWEEN.Tween(lowerArmR2.rotation).to({x: lowerArmR2.rotation.x, y: lowerArmR2.rotation.y, z: lowerArmR2.rotation.z },500).delay(2500).start();
+                    var tweenZ2 = new TWEEN.Tween(lowerArmL2.rotation).to({x: lowerArmL2.rotation.x, y: lowerArmL2.rotation.y, z: lowerArmL2.rotation.z },500).delay(2500).start();
+
+                    // robot2 back to initial position
+                    var tween21 = new TWEEN.Tween(head2.rotation).to({z: head2.rotation.z },500).delay(3800).start();
+                    var tween22 = new TWEEN.Tween(shoulderL2.rotation).to({x: shoulderL2.rotation.x, y: shoulderL2.rotation.y, z: shoulderL2.rotation.z },500).delay(3800).start();
+                    var tween23 = new TWEEN.Tween(shoulderR2.rotation).to({x: shoulderR2.rotation.x, y: shoulderR2.rotation.y, z: shoulderR2.rotation.z },500).delay(3800).start();
+                    var tween24 = new TWEEN.Tween(lowerArmR2.rotation).to({x: lowerArmR2.rotation.x, y: lowerArmR2.rotation.y, z: lowerArmR2.rotation.z },500).delay(3800).start();
+                    var tween25 = new TWEEN.Tween(lowerArmL2.rotation).to({x: lowerArmL2.rotation.x, y: lowerArmL2.rotation.y, z: lowerArmL2.rotation.z },500).delay(3800).start();
+                    var tween26 = new TWEEN.Tween(robot2.rotation).to({y: robot2.rotation.y},500).delay(3800).start();
+                    var tween27 = new TWEEN.Tween(robot2.position).to({y: robot2.position.y},500).delay(3800).start();
+                    var tween28 = new TWEEN.Tween(lowerLegL2.rotation).to({z: lowerLegL2.rotation.z},500).delay(3800).start();
+                    var tween29 = new TWEEN.Tween(lowerLegR2.rotation).to({z: lowerLegL2.rotation.z},500).delay(3800).start();
+                    var tween210 = new TWEEN.Tween(footL2.rotation).to({y: footL2.rotation.y, z: footL2.rotation.z },200).delay(3800).start();
+                    var tween211 = new TWEEN.Tween(footR2.rotation).to({y: footR2.rotation.y, z: footR2.rotation.z },200).delay(3800).start();
+                    var tween212 = new TWEEN.Tween(footL2.position).to({x: footL2.position.x, y: footL2.position.y, z: footL2.position.z },400).delay(3800).start();
+                    var tween213 = new TWEEN.Tween(footR2.position).to({x: footR2.position.x, y: footR2.position.y, z: footR2.position.z },400).delay(3800).start();
+                    var tween214 = new TWEEN.Tween(upperLegL2.rotation).to({z: upperLegL2.rotation.z},500).delay(3800).start();
+                    var tween215 = new TWEEN.Tween(upperLegR2.rotation).to({z: upperLegR2.rotation.z},500).delay(3800).start();
+                    var tween216 = new TWEEN.Tween(robot2.position).to({x: robot2.position.x, z: robot2.position.z},500).delay(3800).start();
+                }
+                
+
+                /***** RENDER FUNCTION *****/
+                function animate() {
+                    requestAnimationFrame( animate );
+                    
+                    // button to start the football animation
+                    document.getElementById("Start").onclick = function(){
+                        kickBall();
+                    };
+                    // button to put the ball back to position
+                    document.getElementById("Reset").onclick = function(){
+                        ballBack();
+                    };
+                    // button to start the dance animation
+                    document.getElementById("Dance").onclick = function(){
+                        dance();
+                    };
+
+                    controls.update();
+                    camera.updateProjectionMatrix();
+
+                    renderer.render( scene, camera );
+                    TWEEN.update();
+                }
+                animate();
+            }
+            main();
+            
+
+
+		</script>
+	</body>
+</html>
