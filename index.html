@@ -474,90 +474,95 @@
                 /***** ANIMATION FUNCTION *****/
                 function kickBall(){
 
-                    // robot1 starts running
-                    var tweenA = new TWEEN.Tween(lowerArmL.rotation).to({y: -Math.PI/8},200).start();
-                    var tweenB = new TWEEN.Tween(lowerArmR.rotation).to({y: Math.PI/8},200).start();
-                    var tweenC = new TWEEN.Tween(head.rotation).to({x: Math.PI/6},200).start();
-                    var tweenD = new TWEEN.Tween(shoulderL.rotation).to({x: -Math.PI/6},500).start();
-                    tweenD.easing(TWEEN.Easing.Quadratic.Out);
-                    var tweenE = new TWEEN.Tween(shoulderR.rotation).to({x: Math.PI/6},500).start();
-                    tweenE.easing(TWEEN.Easing.Quadratic.Out);
-                    var tweenF = new TWEEN.Tween(robot1.position).to({x: -10},1700).start();
-                    var tweenG = new TWEEN.Tween(upperLegL.rotation).to({x: upperLegL.rotation.x + Math.PI/4},500).start();
-                    var tweenH = new TWEEN.Tween(upperLegR.rotation).to({x: upperLegR.rotation.x - Math.PI/4},500).start();
-                    var tweenI = new TWEEN.Tween(upperLegR.rotation).to({x: upperLegR.rotation.x - Math.PI/4},500).start(); // kick of robot1 with right leg
-                    var tweenI2 = new TWEEN.Tween(footR.position).to({y: 0.004},500).start(); // raise right feet
-                    var tweenI3 = new TWEEN.Tween(footR.position).to({z: 0.009},500).start(); // raise right feet
-                    var tweenI4 = new TWEEN.Tween(footR.rotation).to({x: footR.rotation.x - Math.PI/6},500).start(); // raise right feet
-                    
-                    // feet movements
-                    var tweenJ1R = new TWEEN.Tween(footR.position).to({y: 0.003},500).start();
-                    var tweenJ2R = new TWEEN.Tween(footR.position).to({z: 0.01},500).start();
-                    var tweenJ3R = new TWEEN.Tween(footR.rotation).to({x: footR.rotation.x - Math.PI/6},500).start();
-                    var tweenJ1L = new TWEEN.Tween(footL.position).to({y: 0.004},500).start();
-                    var tweenJ2L = new TWEEN.Tween(footL.position).to({z: -0.009},500).start();
-                    var tweenJ3L = new TWEEN.Tween(footL.rotation).to({x: footL.rotation.x + Math.PI/6},500).start();
-                    
-                    // ball starts moving
-                    var tweenK = new TWEEN.Tween(ball.rotation).to({z: '-6*Math.PI'},2000).delay(2300).start(); 
-                    var tweenL = new TWEEN.Tween(ball.position).to({x: 8.7},2000).delay(2300).start(); 
-                    tweenL.easing(TWEEN.Easing.Quadratic.Out);
-                    var tweenM = new TWEEN.Tween(upperLegR2.rotation).to({x: upperLegR2.rotation.x - Math.PI/4},200).delay(4100).start(); // kick of robot2
-                    var tweenM2 = new TWEEN.Tween(footR2.position).to({y: 0.003},200).delay(4100).start(); // kick of robot2
-                    var tweenM3 = new TWEEN.Tween(footR2.position).to({z: 0.011},200).delay(4100).start(); // kick of robot2
-                    var tweenM4 = new TWEEN.Tween(footR2.rotation).to({x: footR2.rotation.x - Math.PI/6},200).delay(4100).start(); // kick of robot2
+                    if(ball.position.x == 8.7){
+                        return;
+                    }
+                    else{
+                        // robot1 starts running
+                        var tweenA = new TWEEN.Tween(lowerArmL.rotation).to({y: -Math.PI/8},200).start();
+                        var tweenB = new TWEEN.Tween(lowerArmR.rotation).to({y: Math.PI/8},200).start();
+                        var tweenC = new TWEEN.Tween(head.rotation).to({x: Math.PI/6},200).start();
+                        var tweenD = new TWEEN.Tween(shoulderL.rotation).to({x: -Math.PI/6},500).start();
+                        tweenD.easing(TWEEN.Easing.Quadratic.Out);
+                        var tweenE = new TWEEN.Tween(shoulderR.rotation).to({x: Math.PI/6},500).start();
+                        tweenE.easing(TWEEN.Easing.Quadratic.Out);
+                        var tweenF = new TWEEN.Tween(robot1.position).to({x: -10},1700).start();
+                        var tweenG = new TWEEN.Tween(upperLegL.rotation).to({x: upperLegL.rotation.x + Math.PI/4},500).start();
+                        var tweenH = new TWEEN.Tween(upperLegR.rotation).to({x: upperLegR.rotation.x - Math.PI/4},500).start();
+                        var tweenI = new TWEEN.Tween(upperLegR.rotation).to({x: upperLegR.rotation.x - Math.PI/4},500).start(); // kick of robot1 with right leg
+                        var tweenI2 = new TWEEN.Tween(footR.position).to({y: 0.004},500).start(); // raise right feet
+                        var tweenI3 = new TWEEN.Tween(footR.position).to({z: 0.009},500).start(); // raise right feet
+                        var tweenI4 = new TWEEN.Tween(footR.rotation).to({x: footR.rotation.x - Math.PI/6},500).start(); // raise right feet
+                        
+                        // feet movements
+                        var tweenJ1R = new TWEEN.Tween(footR.position).to({y: 0.003},500).start();
+                        var tweenJ2R = new TWEEN.Tween(footR.position).to({z: 0.01},500).start();
+                        var tweenJ3R = new TWEEN.Tween(footR.rotation).to({x: footR.rotation.x - Math.PI/6},500).start();
+                        var tweenJ1L = new TWEEN.Tween(footL.position).to({y: 0.004},500).start();
+                        var tweenJ2L = new TWEEN.Tween(footL.position).to({z: -0.009},500).start();
+                        var tweenJ3L = new TWEEN.Tween(footL.rotation).to({x: footL.rotation.x + Math.PI/6},500).start();
+                        
+                        // ball starts moving
+                        var tweenK = new TWEEN.Tween(ball.rotation).to({z: '-6*Math.PI'},2000).delay(2300).start(); 
+                        var tweenL = new TWEEN.Tween(ball.position).to({x: 8.7},2000).delay(2300).start(); 
+                        tweenL.easing(TWEEN.Easing.Quadratic.Out);
+                        var tweenM = new TWEEN.Tween(upperLegR2.rotation).to({x: upperLegR2.rotation.x - Math.PI/4},200).delay(4100).start(); // kick of robot2
+                        var tweenM2 = new TWEEN.Tween(footR2.position).to({y: 0.003},200).delay(4100).start(); // kick of robot2
+                        var tweenM3 = new TWEEN.Tween(footR2.position).to({z: 0.011},200).delay(4100).start(); // kick of robot2
+                        var tweenM4 = new TWEEN.Tween(footR2.rotation).to({x: footR2.rotation.x - Math.PI/6},200).delay(4100).start(); // kick of robot2
 
-                    // robot1 stretches its arm and returns to initial position
-                    var tweenN = new TWEEN.Tween(shoulderR.rotation).to({y: shoulderR.rotation.y -Math.PI/4 },500).delay(2000).start(); // extend right lower arm of robot1
-                    var tweenO = new TWEEN.Tween(lowerArmR.rotation).to({y: lowerArmR.rotation.y -Math.PI/3},500).delay(2000).start(); // extend right lower arm of robot1
-                    var tweenP = new TWEEN.Tween(upperLegR.rotation).to({x: upperLegR.rotation.x, y: upperLegR.rotation.y, z: upperLegR.rotation.z },500).delay(2800).start();
-                    var tweenQ = new TWEEN.Tween(head.rotation).to({x: head.rotation.x},500).delay(2800).start();
-                    var tweenR = new TWEEN.Tween(lowerArmL.rotation).to({x: lowerArmL.rotation.x, y: lowerArmL.rotation.y, z: lowerArmL.rotation.z },500).delay(2800).start(); 
-                    var tweenS = new TWEEN.Tween(lowerArmR.rotation).to({x: lowerArmR.rotation.x, y: lowerArmR.rotation.y, z: lowerArmR.rotation.z },500).delay(2800).start(); 
-                    var tweenT = new TWEEN.Tween(footR.rotation).to({x: footR.rotation.x },500).delay(2800).start();
-                    var tweenU = new TWEEN.Tween(footR.position).to({y: footR.position.y, z: footR.position.z },500).delay(2800).start(); 
-                    var tweenV = new TWEEN.Tween(shoulderR.rotation).to({y: shoulderR.rotation.y },500).delay(2800).start(); 
-                    var tweenW = new TWEEN.Tween(lowerArmR.rotation).to({y: lowerArmR.rotation.y },500).delay(2800).start(); 
+                        // robot1 stretches its arm and returns to initial position
+                        var tweenN = new TWEEN.Tween(shoulderR.rotation).to({y: shoulderR.rotation.y -Math.PI/4 },500).delay(2000).start(); // extend right lower arm of robot1
+                        var tweenO = new TWEEN.Tween(lowerArmR.rotation).to({y: lowerArmR.rotation.y -Math.PI/3},500).delay(2000).start(); // extend right lower arm of robot1
+                        var tweenP = new TWEEN.Tween(upperLegR.rotation).to({x: upperLegR.rotation.x, y: upperLegR.rotation.y, z: upperLegR.rotation.z },500).delay(2800).start();
+                        var tweenQ = new TWEEN.Tween(head.rotation).to({x: head.rotation.x},500).delay(2800).start();
+                        var tweenR = new TWEEN.Tween(lowerArmL.rotation).to({x: lowerArmL.rotation.x, y: lowerArmL.rotation.y, z: lowerArmL.rotation.z },500).delay(2800).start(); 
+                        var tweenS = new TWEEN.Tween(lowerArmR.rotation).to({x: lowerArmR.rotation.x, y: lowerArmR.rotation.y, z: lowerArmR.rotation.z },500).delay(2800).start(); 
+                        var tweenT = new TWEEN.Tween(footR.rotation).to({x: footR.rotation.x },500).delay(2800).start();
+                        var tweenU = new TWEEN.Tween(footR.position).to({y: footR.position.y, z: footR.position.z },500).delay(2800).start(); 
+                        var tweenV = new TWEEN.Tween(shoulderR.rotation).to({y: shoulderR.rotation.y },500).delay(2800).start(); 
+                        var tweenW = new TWEEN.Tween(lowerArmR.rotation).to({y: lowerArmR.rotation.y },500).delay(2800).start(); 
 
-                    // robot2 rejoices
-                    var tweenA2 = new TWEEN.Tween(shoulderL2.rotation).to({x: - Math.PI},500).delay(4500).start();
-                    var tweenB2 = new TWEEN.Tween(shoulderR2.rotation).to({x: - Math.PI},500).delay(4500).start();
-                    var tweenC2 = new TWEEN.Tween(robot2.position).to({y: 0.5},500).delay(4500).start(); 
-                    tweenC2.easing(TWEEN.Easing.Quadratic.In);
-                    var tweenD2 = new TWEEN.Tween(robot2.position).to({y: '0'}, 300).delay(5100).start(); 
+                        // robot2 rejoices
+                        var tweenA2 = new TWEEN.Tween(shoulderL2.rotation).to({x: - Math.PI},500).delay(4500).start();
+                        var tweenB2 = new TWEEN.Tween(shoulderR2.rotation).to({x: - Math.PI},500).delay(4500).start();
+                        var tweenC2 = new TWEEN.Tween(robot2.position).to({y: 0.5},500).delay(4500).start(); 
+                        tweenC2.easing(TWEEN.Easing.Quadratic.In);
+                        var tweenD2 = new TWEEN.Tween(robot2.position).to({y: '0'}, 300).delay(5100).start(); 
 
-                    // robot2 back to initial position
-                    var tweenE2 = new TWEEN.Tween(upperLegR2.rotation).to({x: upperLegR2.rotation.x, y: upperLegR2.rotation.y, z: upperLegR2.rotation.z },500).delay(4500).start(); // leg back to initial position
-                    var tweenF2 = new TWEEN.Tween(footR2.rotation).to({x: footR2.rotation.x},500).delay(4500).start(); // foot back to initial position
-                    var tweenG2 = new TWEEN.Tween(footR2.position).to({y: footR2.position.y, z: footR2.position.z },500).delay(4500).start(); // foot back to initial position
-                    var tweenH2 = new TWEEN.Tween(shoulderL2.rotation).to({x: shoulderL2.rotation.x},500).delay(5800).start();
-                    var tweenJ2 = new TWEEN.Tween(shoulderR2.rotation).to({x: shoulderR2.rotation.x},500).delay(5800).start();
+                        // robot2 back to initial position
+                        var tweenE2 = new TWEEN.Tween(upperLegR2.rotation).to({x: upperLegR2.rotation.x, y: upperLegR2.rotation.y, z: upperLegR2.rotation.z },500).delay(4500).start(); // leg back to initial position
+                        var tweenF2 = new TWEEN.Tween(footR2.rotation).to({x: footR2.rotation.x},500).delay(4500).start(); // foot back to initial position
+                        var tweenG2 = new TWEEN.Tween(footR2.position).to({y: footR2.position.y, z: footR2.position.z },500).delay(4500).start(); // foot back to initial position
+                        var tweenH2 = new TWEEN.Tween(shoulderL2.rotation).to({x: shoulderL2.rotation.x},500).delay(5800).start();
+                        var tweenJ2 = new TWEEN.Tween(shoulderR2.rotation).to({x: shoulderR2.rotation.x},500).delay(5800).start();
 
-                    tweenH.chain(tweenI, tweenI2, tweenI3, tweenI4); // kick after running
-                    
-                    // arm and legs movements of robot1 while running
-                    tweenD.repeat(3)
-                    tweenD.yoyo(true)
-                    tweenE.repeat(3)
-                    tweenE.yoyo(true)
-                    tweenG.repeat(3)
-                    tweenG.yoyo(true)
-                    tweenH.repeat(3)
-                    tweenH.yoyo(true)
+                        tweenH.chain(tweenI, tweenI2, tweenI3, tweenI4); // kick after running
+                        
+                        // arm and legs movements of robot1 while running
+                        tweenD.repeat(3)
+                        tweenD.yoyo(true)
+                        tweenE.repeat(3)
+                        tweenE.yoyo(true)
+                        tweenG.repeat(3)
+                        tweenG.yoyo(true)
+                        tweenH.repeat(3)
+                        tweenH.yoyo(true)
 
-                    // feet movements
-                    tweenJ1R.repeat(3)
-                    tweenJ1R.yoyo(true)
-                    tweenJ2R.repeat(3)
-                    tweenJ2R.yoyo(true)
-                    tweenJ3R.repeat(3)
-                    tweenJ3R.yoyo(true)
-                    tweenJ1L.repeat(3)
-                    tweenJ1L.yoyo(true)
-                    tweenJ2L.repeat(3)
-                    tweenJ2L.yoyo(true)
-                    tweenJ3L.repeat(3)
-                    tweenJ3L.yoyo(true)
+                        // feet movements
+                        tweenJ1R.repeat(3)
+                        tweenJ1R.yoyo(true)
+                        tweenJ2R.repeat(3)
+                        tweenJ2R.yoyo(true)
+                        tweenJ3R.repeat(3)
+                        tweenJ3R.yoyo(true)
+                        tweenJ1L.repeat(3)
+                        tweenJ1L.yoyo(true)
+                        tweenJ2L.repeat(3)
+                        tweenJ2L.yoyo(true)
+                        tweenJ3L.repeat(3)
+                        tweenJ3L.yoyo(true)
+                    }
                     
                 }
 
