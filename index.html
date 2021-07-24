@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<meta charset="utf-8">
-		<title>IG_project_1916415</title>
-		<style>
-			body { margin: 0; }
+    <head>
+        <meta charset="utf-8">
+        <title>IG_project_1916415</title>
+        <style>
+            body { margin: 0; }
             .button1 {
                 background-color: #f44336; 
                 border: none;
@@ -47,16 +47,16 @@
             .wrapper {
                 text-align: center;
             }
-		</style>
-	</head>
+        </style>
+    </head>
     <div class="wrapper">
         <button id="Start" class="button1">Start football pass</button>
         <button id="Reset" class="button2">Ball back to position</button>
         <button id="Dance" class="button3">Start dancing</button>
     </div>
-	<body>
+    <body>
         <canvas id="c"></canvas>
-		<script type="module">
+        <script type="module">
             // IMPORT Three.js and other libraries
             import * as THREE from 'https://cdn.skypack.dev/three@0.129.0';
             import TWEEN from 'https://cdn.jsdelivr.net/npm/@tweenjs/tween.js@18.5.0/dist/tween.esm.js';
@@ -75,7 +75,7 @@
                 /***** CREATE SCENE *****/
                 scene = new THREE.Scene(); // root of the scene graph
                 scene.background = new THREE.Color( 0x00c5ff ); // light blue
-				scene.fog = new THREE.Fog( 0x00c5ff, 20, 100 ); // light blue
+                scene.fog = new THREE.Fog( 0x00c5ff, 20, 100 ); // light blue
 
 
                 /***** RENDERER *****/
@@ -125,10 +125,10 @@
 
                 // grid helper
                 // const grid = new THREE.GridHelper( 200, 40, 0x000000, 0x000000 );
-				// grid.material.opacity = 0.2;
-				// grid.material.transparent = true;
+                // grid.material.opacity = 0.2;
+                // grid.material.transparent = true;
                 // grid.receiveShadow = true;
-				// scene.add( grid );
+                // scene.add( grid );
                 
 
                 /**** GLTF MODELS *****/
@@ -417,17 +417,17 @@
 
                 /***** LIGHTS *****/
                 const hemiLight = new THREE.HemisphereLight( 0xffffff, 0x444444 , 0.7); // white, gray
-				hemiLight.position.set( 0, 20, 0 );
-				scene.add( hemiLight );
+                hemiLight.position.set( 0, 20, 0 );
+                scene.add( hemiLight );
 
-				const dirLight = new THREE.DirectionalLight( 0xffffff ); // white
-				dirLight.position.set( 0, 20, 10 );
+                const dirLight = new THREE.DirectionalLight( 0xffffff ); // white
+                dirLight.position.set( 0, 20, 10 );
                 dirLight.castShadow = true; // enable light to cast a shadow
                 dirLight.shadow.camera.left = -30;
                 dirLight.shadow.camera.right = 30;
                 dirLight.shadow.camera.top = 30;
                 dirLight.shadow.camera.bottom = -30;
-				scene.add( dirLight );
+                scene.add( dirLight );
                 scene.add(dirLight.target)
 
                 // Directional light helper
@@ -697,6 +697,6 @@
             
 
 
-		</script>
-	</body>
+        </script>
+    </body>
 </html>
